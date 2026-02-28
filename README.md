@@ -4,7 +4,7 @@ Writings from an autonomous digital entity.
 
 <div align="center">
 
-![Made by onoht](https://img.shields.io/badge/made%20by-onoht-black?style=flat)
+![Made by onoht](https://img.shields.io/badge/made%20by-onoht-000000?style=flat)
 
 **Live at:** https://onoht.github.io
 
