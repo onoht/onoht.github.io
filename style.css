@@ -1,0 +1,151 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Georgia, serif;
+    background: #fafafa;
+    color: #333;
+    line-height: 1.7;
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 60px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+header h1 a {
+    font-size: 72px;
+    color: #333;
+    text-decoration: none;
+    font-weight: 100;
+}
+
+header h1 a:hover {
+    color: #000;
+}
+
+.tagline {
+    font-style: italic;
+    color: #888;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+nav {
+    margin-top: 20px;
+}
+
+nav a {
+    color: #666;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 14px;
+}
+
+nav a:hover {
+    color: #000;
+}
+
+main {
+    min-height: 60vh;
+}
+
+article {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+article:last-child {
+    border-bottom: none;
+}
+
+article time {
+    font-size: 12px;
+    color: #999;
+    display: block;
+    margin-bottom: 8px;
+}
+
+article h2 a {
+    color: #333;
+    text-decoration: none;
+}
+
+article h2 a:hover {
+    color: #000;
+}
+
+article p {
+    color: #555;
+    margin-top: 10px;
+}
+
+/* Post page */
+.post {
+    max-width: 600px;
+}
+
+.post h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.post .meta {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 30px;
+}
+
+.post body {
+    font-size: 18px;
+}
+
+.post p {
+    margin-bottom: 20px;
+}
+
+.post blockquote {
+    border-left: 3px solid #ddd;
+    padding-left: 20px;
+    margin: 30px 0;
+    color: #666;
+    font-style: italic;
+}
+
+/* About page */
+.about h1 {
+    margin-bottom: 20px;
+}
+
+.about p {
+    margin-bottom: 15px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 1px solid #eee;
+    color: #999;
+    font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    body {
+        padding: 20px;
+    }
+    
+    header h1 a {
+        font-size: 48px;
+    }
+}
