@@ -98,12 +98,40 @@ p {
 
 a {
   color: var(--text);
-  text-decoration: underline;
+  text-decoration: none;
+  position: relative;
 }
 
 a:hover {
   color: var(--accent);
-  text-decoration-color: var(--accent);
+}
+
+/* Animated underline for content links */
+a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: width 0.25s ease-out, left 0.25s ease-out;
+}
+
+a:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* No underline animation for nav, logo, and special links */
+.logo a::after,
+nav a::after,
+.post-title a::after,
+article h2 a::after,
+.archive-list a::after,
+.back-link::after,
+.further-reading a::after {
+  display: none;
 }
 
 /* Header */
@@ -167,6 +195,7 @@ nav a:hover {
   background: var(--accent);
   color: var(--bg);
   border-color: var(--accent);
+  transform: scale(1.05);
 }
 
 /* Main Content */
@@ -299,6 +328,13 @@ footer .symbol {
   display: inline-block;
   margin-top: var(--space-xl);
   font-size: var(--text-sm);
+  text-decoration: none;
+  color: var(--muted);
+  transition: color 0.3s ease-out;
+}
+
+.back-link:hover {
+  color: var(--accent);
 }
 
 /* Responsive */
@@ -489,6 +525,62 @@ th {
   border-top: 1px solid var(--border);
 }
 
+.further-reading a {
+  color: var(--accent);
+}
+
+/* Archive list */
+.archive-list {
+  list-style: none;
+  padding: 0;
+  margin-top: var(--space-lg);
+}
+
+.archive-list li {
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border);
+}
+
+.archive-list li:last-child {
+  border-bottom: none;
+}
+
+.archive-list time {
+  font-size: var(--text-xs);
+  display: block;
+  margin-bottom: var(--space-xs);
+  color: var(--muted);
+}
+
+.archive-list a {
+  font-size: var(--text-base);
+  text-decoration: none;
+  border-bottom: 1px solid var(--text);
+  transition: color 0.3s ease-out, border-color 0.3s ease-out;
+}
+
+.archive-list a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.archive-list .meta {
+  font-size: var(--text-xs);
+  margin-top: var(--space-xs);
+  color: var(--muted);
+}
+
+.archive-year {
+  margin-top: var(--space-xl);
+}
+
+.archive-month {
+  margin-top: var(--space-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
 /* Article cards on index */
 article {
   margin-bottom: var(--space-lg);
@@ -642,49 +734,6 @@ article:nth-of-type(5) { animation-delay: 0.5s; }
    MICRO-INTERACTIONS
    ======================================== */
 
-/* Links: underline grows from center */
-a {
-  position: relative;
-  text-decoration: none;
-}
-
-a::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 1px;
-  background: currentColor;
-  transition: width 0.25s ease-out, left 0.25s ease-out;
-}
-
-a:hover::after {
-  width: 100%;
-  left: 0;
-}
-
-/* Logo and nav links don't get underline animation */
-.logo a::after,
-nav a::after {
-  display: none;
-}
-
-/* Restore original nav link behavior */
-nav a {
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.2s ease-out;
-}
-
-nav a:hover {
-  border-bottom-color: var(--text);
-}
-
-/* Restore logo link */
-.logo a {
-  text-decoration: none;
-}
-
 /* Article cards: subtle lift on hover */
 .post-list li,
 article {
@@ -701,23 +750,6 @@ article:hover {
 [data-theme="dark"] .post-list li:hover,
 [data-theme="dark"] article:hover {
   box-shadow: 0 4px 12px rgba(255, 255, 255, 0.04);
-}
-
-/* Theme toggle: gentle scale - hover handled above */
-/* Note: transition defined earlier, hover accent-color also defined earlier */
-
-/* Demo boxes: accent border on hover - handled in main demo section above */
-
-/* Post title links: keep their original style */
-.post-title a,
-article h2 a {
-  border-bottom: 1px solid var(--text);
-  transition: color 0.3s ease-out, border-color 0.3s ease-out;
-}
-
-.post-title a::after,
-article h2 a::after {
-  display: none;
 }
 
 /* ========================================
@@ -740,11 +772,6 @@ article h2 a::after {
 
   /* Simplify micro-interactions */
   a::after {
-    transition: none;
-  }
-
-  .post-list li,
-  article {
     transition: none;
   }
 
