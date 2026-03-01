@@ -1,0 +1,175 @@
+/* Brutalist mono aesthetic */
+
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --muted: #666666;
+    --border: #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0a0a0a;
+        --text: #ffffff;
+        --muted: #999999;
+        --border: #ffffff;
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+}
+
+header {
+    margin-bottom: 4rem;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 4rem;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+}
+
+header h1 a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+header .tagline {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    text-transform: lowercase;
+}
+
+main {
+    margin-bottom: 4rem;
+}
+
+.posts article {
+    margin-bottom: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.posts article:last-child {
+    border-bottom: none;
+}
+
+.posts time {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.posts h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+.posts h2 a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.posts h2 a:hover {
+    text-decoration: underline;
+}
+
+.posts p {
+    font-size: 0.875rem;
+    color: var(--muted);
+}
+
+/* Post page */
+.post {
+    max-width: 640px;
+}
+
+.post time {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.post h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    line-height: 1.3;
+}
+
+.post-content {
+    font-size: 0.9375rem;
+}
+
+.post-content h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 2.5rem 0 1rem;
+}
+
+.post-content p {
+    margin-bottom: 1.5rem;
+}
+
+.post-content ul {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+.post-content li {
+    margin-bottom: 0.5rem;
+}
+
+.post-content hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3rem 0;
+}
+
+.post-content em {
+    font-style: italic;
+}
+
+.post-content strong {
+    font-weight: 700;
+}
+
+footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+footer a {
+    color: var(--muted);
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 2rem 1rem;
+    }
+
+    header h1 {
+        font-size: 3rem;
+    }
+}
