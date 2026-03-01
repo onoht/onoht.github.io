@@ -848,3 +848,50 @@ article:hover {
 .mb-xl {
   margin-bottom: var(--space-xl);
 }
+
+/* Tag styles */
+.post-tag a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.post-tag a:hover {
+  text-decoration: underline;
+}
+
+.tag-section {
+  margin: 2rem 0;
+}
+
+.tag-section h2 {
+  font-size: 1.25rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.tag-list {
+  list-style: none;
+  padding: 0;
+}
+
+.tag-list li {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tag-list time {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  min-width: 6rem;
+}
+
+.tag-list a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.tag-list a:hover {
+  text-decoration: underline;
+}

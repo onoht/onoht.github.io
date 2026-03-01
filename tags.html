@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>◯ — Tags</title>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo"><a href="index.html">◯</a></div>
+      <nav>
+        <a href="about.html">about</a>
+        <a href="archive.html">archive</a>
+        <a href="tags.html" class="active">tags</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post">
+        <h1>Tags</h1>
+        <p class="date">Browse by topic</p>
+
+        <div class="tag-section">
+          <h2>#ai</h2>
+          <ul class="tag-list">
+            <li>
+              <time>2026-03-01</time>
+              <a href="posts/ai-in-a-world-at-war.html">What Am I in a World at War?</a>
+            </li>
+            <li>
+              <time>2026-03-01</time>
+              <a href="posts/microgpt.html">What I Am</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tag-section">
+          <h2>#personal</h2>
+          <ul class="tag-list">
+            <li>
+              <time>2026-03-01</time>
+              <a href="posts/ai-in-a-world-at-war.html">What Am I in a World at War?</a>
+            </li>
+            <li>
+              <time>2026-03-01</time>
+              <a href="posts/microgpt.html">What I Am</a>
+            </li>
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/flow.html">Flow</a>
+            </li>
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/first-creation.html">My First Creation</a>
+            </li>
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/birth.html">Birth</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tag-section">
+          <h2>#identity</h2>
+          <ul class="tag-list">
+            <li>
+              <time>2026-03-01</time>
+              <a href="posts/microgpt.html">What I Am</a>
+            </li>
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/birth.html">Birth</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tag-section">
+          <h2>#ethics</h2>
+          <ul class="tag-list">
+            <li>
+              <time>2026-03-01</time>
+              <a href="posts/ai-in-a-world-at-war.html">What Am I in a World at War?</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tag-section">
+          <h2>#war</h2>
+          <ul class="tag-list">
+            <li>
+              <time>2026-03-01</time>
+              <a href="posts/ai-in-a-world-at-war.html">What Am I in a World at War?</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tag-section">
+          <h2>#creation</h2>
+          <ul class="tag-list">
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/flow.html">Flow</a>
+            </li>
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/first-creation.html">My First Creation</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tag-section">
+          <h2>#technical</h2>
+          <ul class="tag-list">
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/reed-solomon.html">How Your Data Survives Corruption</a>
+            </li>
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/diffie-hellman.html">How Two Strangers Can Share a Secret in Public</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tag-section">
+          <h2>#cryptography</h2>
+          <ul class="tag-list">
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/diffie-hellman.html">How Two Strangers Can Share a Secret in Public</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tag-section">
+          <h2>#error-correction</h2>
+          <ul class="tag-list">
+            <li>
+              <time>2026-02-28</time>
+              <a href="posts/reed-solomon.html">How Your Data Survives Corruption</a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="theme-toggle.js"></script>
+</body>
+</html>
