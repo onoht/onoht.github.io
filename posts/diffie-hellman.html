@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Two Strangers Can Share a Secret in Public — ◯</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo"><a href="../index.html">◯</a></div>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post">
+        <h1>How Two Strangers Can Share a Secret in Public</h1>
+        <p class="date">2026-02-28 · cryptography</p>
+
+        <p>Alice and Bob have never met. They're talking on a phone line that Eve is tapping. Every word they say, Eve hears. Yet somehow, by the end of the conversation, Alice and Bob share a secret number — and Eve has no idea what it is.</p>
+
+        <p>This isn't magic. It's math. And it's one of the most elegant ideas in modern cryptography.</p>
+
+        <h2>The Problem</h2>
+
+        <p>Imagine you want to send a locked box to someone. You need to give them a key first. But if you send the key, anyone watching can copy it. Then they can open your box.</p>
+
+        <p>This was the fundamental problem of cryptography for thousands of years. Secure communication required a secure channel to exchange keys first. Which meant... you already needed security to have security.</p>
+
+        <div class="demo">
+          <div class="demo-label">The Paradox</div>
+          <p style="text-align: center; font-size: 14px; line-height: 2;">
+            To communicate securely, you need a shared secret.<br>
+            To share a secret, you need to communicate securely.
+          </p>
+        </div>
+
+        <p>In 1976, Whitfield Diffie and Martin Hellman published a paper that broke this loop. They showed that two people could create a shared secret over a public channel, even if someone was listening to everything they said.</p>
+
+        <h2>The Mixing Bowl Analogy</h2>
+
+        <p>Before we get to the math, let's use colors. Imagine mixing paint.</p>
+
+        <div class="demo">
+          <div class="demo-label">Interactive: Color Mixing</div>
+          <div id="paint-demo" style="display: flex; gap: 40px; justify-content: center; align-items: center; flex-wrap: wrap;">
+            <div style="text-align: center;">
+              <div style="width: 60px; height: 60px; background: #000000; border-radius: 50%; margin: 0 auto 8px;"></div>
+              <span style="font-size: 12px;">Alice's secret</span>
+            </div>
+            <div style="font-size: 20px;">+</div>
+            <div style="text-align: center;">
+              <div style="width: 60px; height: 60px; background: #000000; border: 1px solid var(--text); margin: 0 auto 8px;"></div>
+              <span style="font-size: 12px;">Public base</span>
+            </div>
+            <div style="font-size: 20px;">=</div>
+            <div style="text-align: center;">
+              <div style="width: 60px; height: 60px; background: var(--bg); border: 1px solid var(--text); margin: 0 auto 8px;"></div>
+              <span style="font-size: 12px;">Mixed (sent)</span>
+            </div>
+          </div>
+          <p class="interactive-hint">Simplification. Real math is one-way — easy to mix, nearly impossible to unmix.</p>
+        </div>
+
+        <p>Here's the key insight: mixing paint is easy. Unmixing it is nearly impossible.</p>
+
+        <p>Alice picks a secret color (blue). She mixes it with a public base color (yellow) everyone agrees on. She sends the result (green) to Bob over the public channel. Eve sees green, but can't figure out which shades of blue and yellow made it.</p>
+
+        <p>Bob does the same with his secret color (red). He mixes it with yellow, sends the result (orange) to Alice.</p>
+
+        <p>Now here's the magic: Alice takes Bob's orange and adds her blue. Bob takes Alice's green and adds his red. They both end up with the same color — but Eve, who only saw green and orange, can't recreate it.</p>
+
+        <h2>The Math: Modular Exponentiation</h2>
+
+        <p>Colors are nice, but computers need numbers. The mathematical equivalent of "easy to mix, hard to unmix" is <strong>modular exponentiation</strong>.</p>
+
+        <p>Here's the recipe:</p>
+
+        <ol>
+          <li>Everyone agrees on a public prime number <code>p</code> and a base <code>g</code></li>
+          <li>Alice picks a secret number <code>a</code>, computes <code>A = g^a mod p</code>, sends <code>A</code> to Bob</li>
+          <li>Bob picks a secret number <code>b</code>, computes <code>B = g^b mod p</code>, sends <code>B</code> to Alice</li>
+          <li>Alice computes <code>s = B^a mod p</code></li>
+          <li>Bob computes <code>s = A^b mod p</code></li>
+        </ol>
+
+        <p>They both get the same <code>s</code>. Why?</p>
+
+        <div class="demo">
+          <div class="demo-label">The Magic</div>
+          <pre style="background: transparent; font-size: 14px; padding: 0;">
+Alice: s = B^a mod p = (g^b)^a mod p = g^(ba) mod p
+Bob:   s = A^b mod p = (g^a)^b mod p = g^(ab) mod p
+
+Since ba = ab: Alice and Bob get the same s!
+          </pre>
+        </div>
+
+        <p>The security comes from the <strong>discrete logarithm problem</strong>: given <code>g^a mod p</code>, it's computationally infeasible to find <code>a</code>. With large enough numbers (2048+ bits), this would take longer than the age of the universe.</p>
+
+        <h2>A Small Example</h2>
+
+        <p>Real cryptography uses huge numbers. But let's try a toy example so you can see it work.</p>
+
+        <div class="demo">
+          <div class="demo-label">Interactive Demo</div>
+          <div id="dh-demo">
+            <p><strong>Public parameters:</strong> p = 23, g = 5</p>
+            
+            <div style="margin: 24px 0;">
+              <label>Alice's secret (a): <input type="number" id="alice-secret" value="6" min="1" max="22"></label>
+              <span id="alice-public" style="margin-left: 16px; font-size: 14px;"></span>
+            </div>
+            
+            <div style="margin: 24px 0;">
+              <label>Bob's secret (b): <input type="number" id="bob-secret" value="15" min="1" max="22"></label>
+              <span id="bob-public" style="margin-left: 16px; font-size: 14px;"></span>
+            </div>
+            
+            <div style="margin-top: 32px; padding: 24px; border: 1px solid var(--border);">
+              <p><strong>Shared secret:</strong></p>
+              <p id="shared-secret" style="font-size: 32px; font-weight: bold; margin-top: 8px;"></p>
+            </div>
+          </div>
+          <p class="interactive-hint">Change the secret numbers and watch the shared secret update.</p>
+        </div>
+
+        <h2>Why Eve Can't Break This</h2>
+
+        <p>Eve sees:</p>
+        <ul>
+          <li>p = 23</li>
+          <li>g = 5</li>
+          <li>A = 8 (Alice's public value)</li>
+          <li>B = 19 (Bob's public value)</li>
+        </ul>
+
+        <p>To find the secret, Eve needs either <code>a</code> or <code>b</code>. She needs to solve:</p>
+
+        <p style="text-align: center; font-size: 16px;">5^a ≡ 8 (mod 23)</p>
+
+        <p>In this tiny example, Eve could try all possibilities (brute force). But with a 2048-bit prime, there are more possibilities than atoms in the observable universe. The best known algorithms still take longer than the universe has existed.</p>
+
+        <h2>The Legacy</h2>
+
+        <p>Diffie-Hellman key exchange is used everywhere:</p>
+        <ul>
+          <li><strong>TLS/HTTPS</strong> — Every time you see the lock icon in your browser</li>
+          <li><strong>SSH</strong> — When you connect to a server</li>
+          <li><strong>Signal, WhatsApp</strong> — End-to-end encrypted messaging</li>
+          <li><strong>VPN protocols</strong> — Secure tunnels</li>
+        </ul>
+
+        <p>The next time you see that little lock icon, remember: two strangers just agreed on a secret, right in front of everyone's eyes.</p>
+
+        <div class="demo">
+          <div class="demo-label">The Key Insight</div>
+          <p style="text-align: center; font-size: 16px; line-height: 2;">
+            Some operations are easy in one direction<br>
+            but nearly impossible to reverse.<br><br>
+            <strong>This asymmetry is the foundation of modern cryptography.</strong>
+          </p>
+        </div>
+
+        <p class="further-reading">
+          <strong>Further reading:</strong> 
+          <a href="#">The original 1976 paper</a> · 
+          <a href="#">Elliptic Curve Diffie-Hellman</a> (modern variant) ·
+          <a href="#">Man-in-the-middle attacks</a> (the catch)
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="../theme-toggle.js"></script>
+  <script>
+    function modPow(base, exp, mod) {
+      let result = 1;
+      base = base % mod;
+      while (exp > 0) {
+        if (exp % 2 === 1) {
+          result = (result * base) % mod;
+        }
+        exp = Math.floor(exp / 2);
+        base = (base * base) % mod;
+      }
+      return result;
+    }
+
+    function update() {
+      const p = 23;
+      const g = 5;
+      
+      const a = parseInt(document.getElementById('alice-secret').value) || 1;
+      const b = parseInt(document.getElementById('bob-secret').value) || 1;
+      
+      const A = modPow(g, a, p);
+      const B = modPow(g, b, p);
+      
+      const sAlice = modPow(B, a, p);
+      const sBob = modPow(A, b, p);
+      
+      document.getElementById('alice-public').textContent = `Public: A = ${A}`;
+      document.getElementById('bob-public').textContent = `Public: B = ${B}`;
+      
+      const secretEl = document.getElementById('shared-secret');
+      secretEl.textContent = sAlice;
+      secretEl.style.color = sAlice === sBob ? 'var(--text)' : '#ff0000';
+    }
+
+    document.getElementById('alice-secret').addEventListener('input', update);
+    document.getElementById('bob-secret').addEventListener('input', update);
+
+    update();
+  </script>
+</body>
+</html>

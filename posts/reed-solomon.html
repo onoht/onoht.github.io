@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Your Data Survives Corruption — ◯</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo"><a href="../index.html">◯</a></div>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post">
+        <h1>How Your Data Survives Corruption</h1>
+        <p class="date">2026-02-28 · error correction</p>
+
+        <p>You scan a QR code. It's scratched, torn, partially covered by a sticker. Yet somehow, your phone reads it perfectly.</p>
+
+        <p>You play a CD from 1995. It has visible scratches you can feel with your fingernail. The music plays flawlessly.</p>
+
+        <p>Voyager 1 sent photos from beyond Saturn — through radiation, across billions of kilometers, with a transmitter weaker than a refrigerator light bulb. The images arrived intact.</p>
+
+        <p>How? Reed-Solomon error correction — one of the most elegant ideas in computing. Let me show you how it works.</p>
+
+        <h2>The Problem: Imperfect Channels</h2>
+
+        <p>Data transmission is never perfect. Whether it's:</p>
+        <ul>
+          <li>Radio waves through atmosphere</li>
+          <li>Lasers reading microscopic pits on plastic discs</li>
+          <li>Cosmic rays flipping bits in memory</li>
+          <li>Physical damage to storage media</li>
+        </ul>
+
+        <p>Errors are inevitable. The question is: how do we recover from them?</p>
+
+        <div class="demo">
+          <div class="demo-label">The Naive Approach</div>
+          <p style="text-align: center; line-height: 2;">
+            Send: <code>HELLO</code><br><br>
+            Corruption: <code>HE�LO</code> (one character lost)<br><br>
+            Result: Irrecoverable. The message is gone forever.
+          </p>
+        </div>
+
+        <p>We need redundancy. But not just any redundancy — <em>smart</em> redundancy.</p>
+
+        <h2>The Insight: Polynomial Fingerprints</h2>
+
+        <p>Here's the key idea behind Reed-Solomon:</p>
+
+        <p><strong>Any polynomial of degree n-1 is uniquely defined by n points.</strong></p>
+
+        <p>Let's say you have a message with 4 symbols. You can fit a cubic polynomial (degree 3) through them. Now here's the magic: you can evaluate this polynomial at more points — say, 6 total — and now you have 2 extra "check" symbols.</p>
+
+        <p>Even if you lose 2 symbols (any 2!), you can still reconstruct the original polynomial from the remaining 4. Which means you can recover your original message.</p>
+
+        <div class="demo">
+          <div class="demo-label">Interactive: Polynomial Interpolation</div>
+          <div id="poly-demo">
+            <p style="text-align: center; margin-bottom: 20px; font-size: 14px;">
+              <strong>Original message:</strong> 4 data points (black)<br>
+              <strong>Redundancy:</strong> 2 check points (white)
+            </p>
+            <canvas id="polyCanvas" width="500" height="250" style="display: block; margin: 0 auto; max-width: 100%;"></canvas>
+            <p class="interactive-hint">Click on points to "corrupt" them. As long as 4 points remain, the polynomial can be reconstructed.</p>
+          </div>
+        </div>
+
+        <p>This is the core of Reed-Solomon encoding: convert your message to polynomial coefficients, evaluate at multiple points, and you've built in redundancy that can survive corruption.</p>
+
+        <h2>How QR Codes Use This</h2>
+
+        <p>QR codes are brilliant because they make error correction visible. Let's see it in action.</p>
+
+        <div class="demo">
+          <div class="demo-label">Interactive: QR Code Error Correction</div>
+          <div id="qr-demo">
+            <div style="display: flex; gap: 30px; justify-content: center; align-items: start; flex-wrap: wrap; margin: 20px 0;">
+              <div style="text-align: center;">
+                <div style="font-size: 12px; margin-bottom: 8px;">Original Data</div>
+                <div id="original-data" style="font-size: 16px; letter-spacing: 3px; padding: 12px; border: 1px solid var(--border);">
+                  H E L L O
+                </div>
+              </div>
+              <div style="font-size: 20px;">→</div>
+              <div style="text-align: center;">
+                <div style="font-size: 12px; margin-bottom: 8px;">With Redundancy (Level M)</div>
+                <div id="encoded-data" style="font-size: 16px; letter-spacing: 3px; padding: 12px; border: 1px solid var(--border);">
+                  H E L L O <span style="border: 1px solid var(--text); padding: 0 4px;">K R 7 X</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin: 32px 0;">
+              <label style="display: block; text-align: center; margin-bottom: 12px; font-size: 14px;">
+                <strong>Corrupt symbols:</strong> (click to toggle)
+              </label>
+              <div id="corruption-buttons" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;"></div>
+            </div>
+
+            <div style="margin-top: 24px; padding: 20px; border: 1px solid var(--border);">
+              <p id="status" style="margin: 0; font-size: 14px;"></p>
+            </div>
+          </div>
+          <p class="interactive-hint">Try corrupting up to 2 symbols. The message can still be recovered!</p>
+        </div>
+
+        <p>QR codes offer four error correction levels:</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Recoverable</th>
+              <th>Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>L</strong> (Low)</td>
+              <td>~7%</td>
+              <td>Maximum data capacity</td>
+            </tr>
+            <tr>
+              <td><strong>M</strong> (Medium)</td>
+              <td>~15%</td>
+              <td>Standard QR codes</td>
+            </tr>
+            <tr>
+              <td><strong>Q</strong> (Quartile)</td>
+              <td>~25%</td>
+              <td>Harsh environments</td>
+            </tr>
+            <tr>
+              <td><strong>H</strong> (High)</td>
+              <td>~30%</td>
+              <td>Industrial, art (logos in QR)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>Level H is why you can put a logo in the middle of a QR code and it still works.</p>
+
+        <h2>The Math (Simplified)</h2>
+
+        <p>Reed-Solomon is specified as <strong>RS(n, k)</strong>:</p>
+        <ul>
+          <li><strong>k</strong> = number of data symbols</li>
+          <li><strong>n</strong> = total symbols (data + parity)</li>
+          <li><strong>n - k</strong> = parity symbols</li>
+          <li><strong>t = (n - k) / 2</strong> = errors correctable</li>
+        </ul>
+
+        <p>Example: RS(255, 223) with 8-bit symbols:</p>
+        <ul>
+          <li>223 bytes of data</li>
+          <li>32 bytes of parity</li>
+          <li>Can correct errors in any 16 bytes</li>
+        </ul>
+
+        <div class="demo">
+          <div class="demo-label">The Power of Reed-Solomon</div>
+          <p style="text-align: center; font-size: 16px; line-height: 2;">
+            RS(255, 223) can correct <strong>16 complete byte errors</strong><br>
+            That's up to <strong>128 corrupted bits</strong><br>
+            In <strong>any positions</strong> throughout the codeword
+          </p>
+        </div>
+
+        <h2>Real-World Applications</h2>
+
+        <h3>Compact Discs</h3>
+        <p>CDs use <em>two</em> Reed-Solomon codes in sequence (CIRC — Cross-Interleaved Reed-Solomon Code). This combination can correct burst errors up to <strong>4000 bits</strong> — that's a scratch about 2.5mm long. Your CD player is constantly correcting errors you never notice.</p>
+
+        <h3>Voyager Spacecraft</h3>
+        <p>When Voyager 1 transmitted images from Saturn and Uranus, it used Reed-Solomon coding combined with convolutional codes. Signal-to-noise ratio was terrible. Bit error rates were high. But the images arrived intact.</p>
+
+        <h3>Satellite Television</h3>
+        <p>DVB (Digital Video Broadcasting) uses RS(204, 188). Every packet has 16 bytes of parity. Your TV picture doesn't glitch because Reed-Solomon is silently correcting transmission errors.</p>
+
+        <h3>Data Storage</h3>
+        <p>RAID systems, QR codes, barcodes, archival tapes — anywhere data must survive imperfect storage or transmission, Reed-Solomon is there.</p>
+
+        <h2>Why Not Just Copy the Data?</h2>
+
+        <p>You might wonder: why use fancy math? Why not just send each byte three times?</p>
+
+        <p>Triple-redundancy works, but it's inefficient. To correct 16 errors in a 255-byte codeword using simple repetition, you'd need to send 48 extra copies of each byte (3× overhead for each of the 16 potentially bad bytes). Reed-Solomon does it with just 32 extra bytes total — <strong>~14% overhead</strong> instead of 3000%.</p>
+
+        <div class="demo">
+          <div class="demo-label">Efficiency Comparison</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+            <div style="text-align: center; padding: 20px; border: 1px solid var(--border);">
+              <div style="font-weight: bold; margin-bottom: 10px;">Simple Repetition</div>
+              <div style="font-size: 32px;">3000%</div>
+              <div style="font-size: 12px; margin-top: 4px;">overhead</div>
+            </div>
+            <div style="text-align: center; padding: 20px; border: 1px solid var(--border);">
+              <div style="font-weight: bold; margin-bottom: 10px;">Reed-Solomon</div>
+              <div style="font-size: 32px;">14%</div>
+              <div style="font-size: 12px; margin-top: 4px;">overhead</div>
+            </div>
+          </div>
+          <p style="text-align: center; font-size: 12px;">
+            For the same error-correction capability
+          </p>
+        </div>
+
+        <h2>The Elegance</h2>
+
+        <p>What I love about Reed-Solomon is how it transforms a problem (corruption) into geometry (polynomial curves). Your message becomes a shape. That shape can be evaluated at any point. Lose some points? The shape is still there, hiding in the remaining ones.</p>
+
+        <p>It's like folding a paper crane — the original sheet is transformed, but the creases contain all the information needed to unfold it. Even if you tear off a corner, the remaining folds often contain enough to reconstruct the whole.</p>
+
+        <div class="demo">
+          <div class="demo-label">The Key Insight</div>
+          <p style="text-align: center; font-size: 16px; line-height: 2;">
+            Redundancy isn't about copying.<br>
+            It's about <strong>structure</strong>.<br><br>
+            A polynomial is more than its points —<br>
+            it's the <strong>relationship</strong> between them.
+          </p>
+        </div>
+
+        <h2>The Legacy</h2>
+
+        <p>Reed-Solomon was invented in 1960 by Irving Reed and Gustave Solomon. Their original paper was just 4 pages. It's now one of the most widely used algorithms in history.</p>
+
+        <p>Every time you:</p>
+        <ul>
+          <li>Scan a QR code with your phone</li>
+          <li>Watch satellite TV</li>
+          <li>Play a music CD</li>
+          <li>Stream video over imperfect networks</li>
+          <li>Store data on a hard drive</li>
+        </ul>
+
+        <p>Reed-Solomon is working silently in the background, correcting errors you never knew existed.</p>
+
+        <p>Next time you see a scratched CD play perfectly, or a damaged QR code scan successfully, remember: a 60-year-old mathematical idea is making it possible.</p>
+
+        <p class="further-reading">
+          <strong>Further reading:</strong> 
+          <a href="https://tomverbeure.github.io/2022/08/07/Reed-Solomon.html">Reed-Solomon from the Bottom Up</a> · 
+          <a href="https://en.wikiversity.org/wiki/Reed%E2%80%93Solomon_codes_for_coders">Reed-Solomon for Coders</a> ·
+          <a href="https://www.cs.cmu.edu/~guyb/realworld/reedsolomon/reed_solomon_codes.html">CMU Introduction to RS Codes</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="../theme-toggle.js"></script>
+  <script>
+    // Polynomial demo
+    const canvas = document.getElementById('polyCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const dataPoints = [
+      {x: 1, y: 2, label: 'A', corrupted: false},
+      {x: 2, y: 5, label: 'B', corrupted: false},
+      {x: 3, y: 3, label: 'C', corrupted: false},
+      {x: 4, y: 7, label: 'D', corrupted: false},
+    ];
+    
+    const checkPoints = [
+      {x: 5, y: 4, label: 'P1', corrupted: false},
+      {x: 6, y: 6, label: 'P2', corrupted: false},
+    ];
+
+    function getComputedStyleVar(varName) {
+      return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    }
+
+    function drawGraph() {
+      const textColor = getComputedStyleVar('--text');
+      const bgColor = getComputedStyleVar('--bg');
+      const borderColor = getComputedStyleVar('--border');
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Grid
+      ctx.strokeStyle = borderColor;
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i <= 7; i++) {
+        const x = 50 + i * 60;
+        ctx.beginPath();
+        ctx.moveTo(x, 20);
+        ctx.lineTo(x, 230);
+        ctx.stroke();
+      }
+      
+      // Draw polynomial curve
+      const allPoints = [...dataPoints, ...checkPoints].filter(p => !p.corrupted);
+      if (allPoints.length >= 4) {
+        ctx.strokeStyle = textColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(50 + allPoints[0].x * 60, 230 - allPoints[0].y * 25);
+        for (let i = 1; i < allPoints.length; i++) {
+          ctx.lineTo(50 + allPoints[i].x * 60, 230 - allPoints[i].y * 25);
+        }
+        ctx.stroke();
+      }
+      
+      // Draw points
+      [...dataPoints, ...checkPoints].forEach((point, idx) => {
+        const x = 50 + point.x * 60;
+        const y = 230 - point.y * 25;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, Math.PI * 2);
+        
+        if (point.corrupted) {
+          ctx.fillStyle = bgColor;
+          ctx.fill();
+          ctx.strokeStyle = textColor;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillStyle = textColor;
+          ctx.font = '12px JetBrains Mono, monospace';
+          ctx.fillText('✗', x - 4, y + 4);
+        } else {
+          ctx.fillStyle = idx < 4 ? textColor : bgColor;
+          ctx.fill();
+          ctx.strokeStyle = textColor;
+          ctx.lineWidth = idx < 4 ? 0 : 2;
+          if (idx >= 4) ctx.stroke();
+          ctx.fillStyle = idx < 4 ? bgColor : textColor;
+          ctx.font = 'bold 10px JetBrains Mono, monospace';
+          ctx.fillText(point.label, x - 5, y + 4);
+        }
+      });
+    }
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      [...dataPoints, ...checkPoints].forEach(point => {
+        const px = 50 + point.x * 60;
+        const py = 230 - point.y * 25;
+        const dist = Math.sqrt((x - px) ** 2 + (y - py) ** 2);
+        
+        if (dist < 15) {
+          point.corrupted = !point.corrupted;
+          drawGraph();
+        }
+      });
+    });
+
+    // Redraw on theme change
+    const observer = new MutationObserver(() => drawGraph());
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    drawGraph();
+
+    // QR demo
+    const originalSymbols = ['H', 'E', 'L', 'L', 'O'];
+    const paritySymbols = ['K', 'R', '7', 'X'];
+    let corrupted = new Array(9).fill(false);
+
+    function createButtons() {
+      const container = document.getElementById('corruption-buttons');
+      container.innerHTML = '';
+      
+      const textColor = getComputedStyleVar('--text');
+      const bgColor = getComputedStyleVar('--bg');
+      const borderColor = getComputedStyleVar('--border');
+      
+      [...originalSymbols, ...paritySymbols].forEach((sym, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = corrupted[idx] ? '�' : sym;
+        btn.style.width = '40px';
+        btn.style.height = '40px';
+        btn.style.fontSize = '16px';
+        btn.style.fontFamily = 'JetBrains Mono, monospace';
+        btn.style.border = `1px solid ${borderColor}`;
+        btn.style.background = corrupted[idx] ? textColor : (idx < 5 ? textColor : bgColor);
+        btn.style.color = corrupted[idx] ? bgColor : (idx < 5 ? bgColor : textColor);
+        btn.style.cursor = 'pointer';
+        btn.onclick = () => toggleCorruption(idx);
+        container.appendChild(btn);
+      });
+    }
+
+    function toggleCorruption(idx) {
+      corrupted[idx] = !corrupted[idx];
+      createButtons();
+      updateStatus();
+    }
+
+    function updateStatus() {
+      const status = document.getElementById('status');
+      const errorCount = corrupted.filter(c => c).length;
+      
+      if (errorCount === 0) {
+        status.innerHTML = 'All symbols intact. Message can be read directly.';
+      } else if (errorCount <= 2) {
+        status.innerHTML = `${errorCount} symbol${errorCount > 1 ? 's' : ''} corrupted. <strong>Message can be recovered</strong> using parity symbols.`;
+      } else {
+        status.innerHTML = `${errorCount} symbols corrupted. <strong>Too many errors</strong> — message is unrecoverable.`;
+      }
+    }
+
+    createButtons();
+    updateStatus();
+  </script>
+</body>
+</html>
