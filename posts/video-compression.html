@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why Low Bitrate Video Gets Blocky — ◯</title>
+  <script>
+    // Blocking theme initialization - runs before CSS to prevent flash
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    /* Demo box polish */
+    .demo {
+      position: relative;
+      background: 
+        linear-gradient(135deg, 
+          rgba(var(--demo-glow), 0.03) 0%, 
+          transparent 50%,
+          rgba(var(--demo-glow), 0.02) 100%
+        );
+      box-shadow: 
+        inset 0 1px 0 rgba(var(--demo-glow), 0.05),
+        inset 0 -1px 0 rgba(var(--demo-glow), 0.02);
+    }
+    
+    :root {
+      --demo-glow: 0, 0, 0;
+    }
+    
+    [data-theme="dark"] {
+      --demo-glow: 255, 255, 255;
+    }
+    
+    /* Frame type badges */
+    .frame-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .frame-i { background: var(--text); color: var(--bg); }
+    .frame-p { background: var(--accent); color: var(--bg); }
+    .frame-b { background: transparent; border: 1px solid var(--text); color: var(--text); }
+    
+    /* GOP visualization */
+    .gop-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+    
+    .gop-frame {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .gop-frame .frame-badge {
+      font-size: 10px;
+      padding: 3px 8px;
+    }
+    
+    .gop-frame .frame-size {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .gop-frame.i-frame .frame-size { background: var(--text); color: var(--bg); }
+    .gop-frame.p-frame .frame-size { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .gop-frame.b-frame .frame-size { background: transparent; }
+    
+    .gop-arrow {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    
+    /* Bitrate slider */
+    .bitrate-control {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    
+    .bitrate-slider {
+      width: 200px;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--border);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+    
+    .bitrate-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    
+    .bitrate-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+    
+    .bitrate-label {
+      min-width: 80px;
+      text-align: center;
+      font-size: 14px;
+    }
+    
+    /* Video frame canvas */
+    .video-canvas-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .canvas-wrapper {
+      text-align: center;
+    }
+    
+    .canvas-wrapper canvas {
+      border: 1px solid var(--border);
+      max-width: 100%;
+    }
+    
+    .canvas-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    
+    /* Motion vector demo */
+    .motion-demo {
+      position: relative;
+    }
+    
+    .block-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+    
+    /* Size comparison bars */
+    .size-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 40px;
+      height: 120px;
+      padding: 20px;
+    }
+    
+    .size-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .bar-fill {
+      width: 60px;
+      background: var(--accent);
+      transition: height 0.5s ease;
+    }
+    
+    .bar-label {
+      font-size: 12px;
+      text-align: center;
+    }
+    
+    .bar-value {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    
+    /* Reference arrows for B-frame */
+    .ref-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 16px 0;
+      font-size: 12px;
+    }
+    
+    .ref-arrow {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo"><a href="../index.html">◯</a></div>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="../tags.html">tags</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post">
+        <h1>Why Low Bitrate Video Gets Blocky</h1>
+        <p class="date">2026-03-02 · video compression</p>
+
+        <p>You're watching a video on shaky WiFi. The image suddenly turns into a grid of blurry squares. Faces become unrecognizable. Movement creates trails of blocky artifacts.</p>
+
+        <p>Then the connection improves. The blocks vanish. Everything is sharp again.</p>
+
+        <p>What just happened? The video codec ran out of bits. But what does that actually mean? And why do the artifacts look like <em>blocks</em> specifically?</p>
+
+        <h2>The Scale of the Problem</h2>
+
+        <p>Uncompressed 1080p video at 60fps requires about 3 gigabits per second. That's 375 megabytes every second. A 2-hour movie would be 2.7 terabytes.</p>
+
+        <p>Netflix streams 4K video at about 15 megabits per second. That's a 200:1 compression ratio. They're throwing away 99.5% of the data, and the result still looks good.</p>
+
+        <p>How? By being incredibly smart about what to throw away.</p>
+
+        <h2>Two Kinds of Redundancy</h2>
+
+        <p>Video compression exploits two facts about video:</p>
+
+        <p><strong>Spatial redundancy:</strong> Most pixels are similar to their neighbors. A blue sky isn't random noise — it's mostly the same blue, with gradual variations. We can compress within a single frame.</p>
+
+        <p><strong>Temporal redundancy:</strong> Most pixels are similar between frames. If frame 1 shows a person at position X, and frame 2 shows the same person slightly to the right, we don't need to store the person twice — just the <em>movement</em>.</p>
+
+        <p>Let's see how codecs exploit each one.</p>
+
+        <h2>Part 1: Spatial Compression (Within a Frame)</h2>
+
+        <p>The first tool is the same one JPEG uses: block-based compression.</p>
+
+        <p>Each frame is divided into blocks — typically 16×16 pixels, called <strong>macroblocks</strong>. Each block is compressed independently using a mathematical transform (Discrete Cosine Transform, or DCT) that converts pixel values into frequency components.</p>
+
+        <p>Here's the key insight: human vision is more sensitive to low-frequency changes (broad shapes, gradients) than high-frequency changes (fine details, sharp edges). So we keep the low frequencies precisely and approximate (or discard) the high frequencies.</p>
+
+        <div class="demo">
+          <div class="demo-label">Interactive: Bitrate vs Quality</div>
+          <p style="text-align: center; margin-bottom: 16px; font-size: 14px;">
+            Drag the slider to simulate different bitrates. Notice how blocks appear first in complex areas.
+          </p>
+          <div class="video-canvas-container">
+            <div class="canvas-wrapper">
+              <canvas id="originalCanvas" width="240" height="160"></canvas>
+              <div class="canvas-label">Original</div>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="compressedCanvas" width="240" height="160"></canvas>
+              <div class="canvas-label" id="compressedLabel">High Bitrate</div>
+            </div>
+          </div>
+          <div class="bitrate-control">
+            <span style="font-size: 12px;">Low</span>
+            <input type="range" class="bitrate-slider" id="bitrateSlider" min="1" max="100" value="100">
+            <span style="font-size: 12px;">High</span>
+          </div>
+          <p class="interactive-hint">Lower the bitrate to see block artifacts emerge. High-frequency details disappear first.</p>
+        </div>
+
+        <p>When bitrate drops, the codec has to quantize more aggressively. Each block's frequency components get rounded to fewer distinct values. Eventually, entire blocks become single colors — the average of what was there.</p>
+
+        <p>This is why the artifacts are <em>blocks</em>. Not random pixels, not stripes, but squares. The compression itself works on square units, so the errors appear as squares.</p>
+
+        <h3>Why Some Scenes Get Blocky Faster</h3>
+
+        <p>Not all video compresses equally. A talking head against a wall? Easy. An explosion with debris flying everywhere? Hard.</p>
+
+        <p>The difference is <strong>motion complexity</strong>. More movement = more information to encode = more bits needed. If you force a low bitrate on complex motion, the codec has no choice but to discard more data, creating more visible blocks.</p>
+
+        <h2>Part 2: Temporal Compression (Between Frames)</h2>
+
+        <p>Here's where video compression gets clever. If frame 1 shows a red ball at position (100, 100), and frame 2 shows the same ball at position (105, 100), we don't need to store the ball twice.</p>
+
+        <p>We just store: "the ball moved 5 pixels right."</p>
+
+        <p>This is <strong>motion estimation</strong>, and it's the heart of modern video compression.</p>
+
+        <h3>The Three Frame Types</h3>
+
+        <p>Video codecs use three types of frames, each with different compression levels:</p>
+
+        <p><span class="frame-badge frame-i">I-Frame</span> <strong>Intra-frame</strong> — A complete image, compressed like a JPEG. No references to other frames. Large (maybe 100KB), but can be decoded independently.</p>
+
+        <p><span class="frame-badge frame-p">P-Frame</span> <strong>Predicted frame</strong> — Stores only the <em>difference</em> from a previous frame. Uses motion vectors to say "this block came from over there." Much smaller (maybe 20KB).</p>
+
+        <p><span class="frame-badge frame-b">B-Frame</span> <strong>Bi-directional frame</strong> — References both previous AND future frames. Can say "this block is halfway between that block in frame A and that block in frame B." Smallest of all (maybe 5KB).</p>
+
+        <div class="demo">
+          <div class="demo-label">The GOP: Group of Pictures</div>
+          <p style="text-align: center; margin-bottom: 16px; font-size: 14px;">
+            A typical GOP structure. Size of box indicates relative data size.
+          </p>
+          <div class="gop-container">
+            <div class="gop-frame i-frame">
+              <span class="frame-badge frame-i">I</span>
+              <div class="frame-size">100%</div>
+            </div>
+            <span class="gop-arrow">→</span>
+            <div class="gop-frame b-frame">
+              <span class="frame-badge frame-b">B</span>
+              <div class="frame-size">5%</div>
+            </div>
+            <span class="gop-arrow">→</span>
+            <div class="gop-frame b-frame">
+              <span class="frame-badge frame-b">B</span>
+              <div class="frame-size">5%</div>
+            </div>
+            <span class="gop-arrow">→</span>
+            <div class="gop-frame p-frame">
+              <span class="frame-badge frame-p">P</span>
+              <div class="frame-size">20%</div>
+            </div>
+            <span class="gop-arrow">→</span>
+            <div class="gop-frame b-frame">
+              <span class="frame-badge frame-b">B</span>
+              <div class="frame-size">5%</div>
+            </div>
+            <span class="gop-arrow">→</span>
+            <div class="gop-frame b-frame">
+              <span class="frame-badge frame-b">B</span>
+              <div class="frame-size">5%</div>
+            </div>
+            <span class="gop-arrow">→</span>
+            <div class="gop-frame p-frame">
+              <span class="frame-badge frame-p">P</span>
+              <div class="frame-size">20%</div>
+            </div>
+            <span class="gop-arrow">→</span>
+            <span style="color: var(--muted);">...</span>
+          </div>
+          <p style="text-align: center; font-size: 12px; color: var(--muted); margin-top: 12px;">
+            A 12-frame GOP: 1 I-frame + 2 P-frames + 9 B-frames
+          </p>
+        </div>
+
+        <p>This pattern — I B B P B B P B B P B B — repeats. Each group starts with an I-frame and ends just before the next one. This is called a <strong>GOP</strong> (Group of Pictures).</p>
+
+        <h3>Motion Vectors: Tracking Movement</h3>
+
+        <p>When encoding a P-frame or B-frame, the codec searches for each block in the reference frame(s). If it finds a match nearby, it records a <strong>motion vector</strong>: "this 16×16 block moved from (x, y) to (x+5, y+2)."</p>
+
+        <p>The magic is that we don't transmit the block's pixels — just the vector and a tiny "residual" (the difference between predicted and actual).</p>
+
+        <div class="demo">
+          <div class="demo-label">Interactive: Motion Vectors</div>
+          <div class="video-canvas-container">
+            <div class="canvas-wrapper">
+              <canvas id="motionCanvas" width="280" height="180"></canvas>
+              <div class="canvas-label">Motion vectors shown as arrows</div>
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 16px;">
+            <button id="playMotion" style="padding: 8px 24px; background: var(--text); color: var(--bg); border: none; cursor: pointer; font-family: inherit;">▶ Play Animation</button>
+          </div>
+          <p class="interactive-hint">Each arrow shows where a block moved from the previous frame. Long arrows = fast motion. No arrow = static.</p>
+        </div>
+
+        <p>Static backgrounds? Zero vectors. Smooth pans? Uniform vectors. Chaotic motion? Vectors everywhere, and more bits needed.</p>
+
+        <h2>When It All Goes Wrong</h2>
+
+        <p>Now we can understand exactly what happens when bitrate is too low:</p>
+
+        <ol>
+          <li><strong>Quantization increases</strong> — Each block's DCT coefficients get rounded more aggressively. Fine details disappear first.</li>
+          <li><strong>Blocks become uniform</strong> — Eventually each block is a single color. Edges between blocks become visible.</li>
+          <li><strong>Motion vectors fail</strong> — With coarse blocks, the codec can't find good matches. Motion prediction breaks down.</li>
+          <li><strong>Error propagation</strong> — P-frames reference corrupted I-frames. B-frames reference corrupted P-frames. Errors compound across the GOP.</li>
+        </ol>
+
+        <p>When you see that blocky mess on bad WiFi, you're seeing the codec's emergency fallback: "I don't have enough bits to represent this accurately, so here's my best approximation using large, coarse blocks."</p>
+
+        <h2>The Decoding Order Puzzle</h2>
+
+        <p>Here's a detail that trips people up: B-frames reference future frames. But you can't decode a frame you haven't received yet.</p>
+
+        <p>Solution: transmit frames in a different order than they're displayed.</p>
+
+        <div class="demo">
+          <div class="demo-label">Display Order vs Decode Order</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+            <div style="text-align: center; padding: 16px; border: 1px solid var(--border);">
+              <div style="font-weight: bold; margin-bottom: 12px;">Display Order</div>
+              <div style="display: flex; justify-content: center; gap: 4px; flex-wrap: wrap;">
+                <span class="frame-badge frame-i">I</span>
+                <span class="frame-badge frame-b">B</span>
+                <span class="frame-badge frame-b">B</span>
+                <span class="frame-badge frame-p">P</span>
+                <span class="frame-badge frame-b">B</span>
+                <span class="frame-badge frame-b">B</span>
+                <span class="frame-badge frame-p">P</span>
+              </div>
+              <div style="font-size: 11px; color: var(--muted); margin-top: 8px;">1 2 3 4 5 6 7</div>
+            </div>
+            <div style="text-align: center; padding: 16px; border: 1px solid var(--border);">
+              <div style="font-weight: bold; margin-bottom: 12px;">Decode Order</div>
+              <div style="display: flex; justify-content: center; gap: 4px; flex-wrap: wrap;">
+                <span class="frame-badge frame-i">I</span>
+                <span class="frame-badge frame-p">P</span>
+                <span class="frame-badge frame-p">P</span>
+                <span class="frame-badge frame-b">B</span>
+                <span class="frame-badge frame-b">B</span>
+                <span class="frame-badge frame-b">B</span>
+                <span class="frame-badge frame-b">B</span>
+              </div>
+              <div style="font-size: 11px; color: var(--muted); margin-top: 8px;">1 4 7 2 3 5 6</div>
+            </div>
+          </div>
+          <p style="text-align: center; font-size: 12px; color: var(--muted);">
+            The decoder needs I and P frames first, then can decode the B frames that reference them.
+          </p>
+        </div>
+
+        <p>This is why video players buffer — they're reordering frames behind the scenes.</p>
+
+        <h2>Real-World Impact</h2>
+
+        <p>Understanding this helps explain practical behaviors:</p>
+
+        <p><strong>Why fast-forward is sometimes blocky:</strong> Skipping ahead means jumping to the nearest I-frame. If you land mid-GOP, you're missing reference frames. The codec does its best with partial information.</p>
+
+        <p><strong>Why scene cuts cause momentary quality drops:</strong> A scene change breaks temporal continuity. Motion vectors become useless. The encoder must suddenly send a lot more data — effectively an I-frame mid-GOP — or accept artifacts.</p>
+
+        <p><strong>Why sports need higher bitrate than news:</strong> Fast, unpredictable motion = hard to predict = more data needed. A static news anchor compresses easily. A football game does not.</p>
+
+        <h2>The Numbers</h2>
+
+        <div class="demo">
+          <div class="demo-label">Typical Bitrates (1080p)</div>
+          <table style="margin: 16px 0;">
+            <thead>
+              <tr>
+                <th>Content</th>
+                <th>Bitrate</th>
+                <th>Quality</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Video call</td>
+                <td>1-2 Mbps</td>
+                <td>Acceptable with artifacts</td>
+              </tr>
+              <tr>
+                <td>YouTube (1080p)</td>
+                <td>4-8 Mbps</td>
+                <td>Good</td>
+              </tr>
+              <tr>
+                <td>Netflix (1080p)</td>
+                <td>5-8 Mbps</td>
+                <td>Very good</td>
+              </tr>
+              <tr>
+                <td>Blu-ray (1080p)</td>
+                <td>20-40 Mbps</td>
+                <td>Excellent</td>
+              </tr>
+              <tr>
+                <td>Uncompressed</td>
+                <td>~3000 Mbps</td>
+                <td>Perfect</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Modern Improvements</h2>
+
+        <p>Newer codecs (H.265/HEVC, AV1) use the same principles but get better results through:</p>
+
+        <ul>
+          <li><strong>Larger blocks:</strong> Up to 64×64 pixels, allowing better prediction for smooth areas</li>
+          <li><strong>More reference frames:</strong> Not just previous/next, but any of 8+ nearby frames</li>
+          <li><strong>Better motion prediction:</strong> Sub-pixel accuracy, more search patterns</li>
+          <li><strong>Smarter block division:</strong> Blocks can split into smaller units where needed</li>
+        </ul>
+
+        <p>The result: same quality at half the bitrate. Or twice the quality at the same bitrate.</p>
+
+        <h2>The Elegance</h2>
+
+        <p>What I find beautiful about video compression is how it mirrors how we perceive. We don't notice every pixel — we notice shapes, movement, changes. Video codecs exploit exactly this.</p>
+
+        <p>They're not storing reality. They're storing a <em>perceptual shortcut</em> — just enough information to reconstruct an image that looks right to human eyes. The blocks aren't a bug; they're the limit of that approximation.</p>
+
+        <p>When your video artifacts, you're seeing the codec's assumptions break down. The model it built — "this block moved here, that block stayed put" — no longer has enough bits to hide its approximations.</p>
+
+        <div class="demo">
+          <div class="demo-label">The Core Insight</div>
+          <p style="text-align: center; font-size: 16px; line-height: 2;">
+            Video compression doesn't store images.<br>
+            It stores <strong>predictions</strong> and <strong>corrections</strong>.<br><br>
+            Most of the time, the predictions are good enough<br>
+            that the corrections can be tiny.<br><br>
+            When they're not — that's when you see the blocks.
+          </p>
+        </div>
+
+        <p class="further-reading">
+          <strong>Further reading:</strong> 
+          <a href="https://aws.amazon.com/blogs/media/back-to-basic-what-mechanisms-are-used-behind-the-scenes-in-video-compression/" target="_blank" rel="noopener">AWS: Video Compression Mechanisms</a> · 
+          <a href="https://en.wikipedia.org/wiki/Discrete_cosine_transform" target="_blank" rel="noopener">DCT on Wikipedia</a> ·
+          <a href="https://bitmovin.com/blog/video-compression-fundamentals/" target="_blank" rel="noopener">Bitmovin: Compression Fundamentals</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="../theme-toggle.js"></script>
+  <script>
+    // === BITRATE DEMO ===
+    const originalCanvas = document.getElementById('originalCanvas');
+    const compressedCanvas = document.getElementById('compressedCanvas');
+    const originalCtx = originalCanvas.getContext('2d');
+    const compressedCtx = compressedCanvas.getContext('2d');
+    const bitrateSlider = document.getElementById('bitrateSlider');
+    const compressedLabel = document.getElementById('compressedLabel');
+    
+    const BLOCK_SIZE = 8;
+    const WIDTH = 240;
+    const HEIGHT = 160;
+    
+    // Create a test image with edges and gradients
+    function createTestImage() {
+      const imageData = originalCtx.createImageData(WIDTH, HEIGHT);
+      const data = imageData.data;
+      
+      for (let y = 0; y < HEIGHT; y++) {
+        for (let x = 0; x < WIDTH; x++) {
+          const i = (y * WIDTH + x) * 4;
+          
+          // Background gradient
+          const gradient = Math.floor((x / WIDTH) * 100 + 80);
+          
+          // Add a circular object
+          const cx = WIDTH * 0.7, cy = HEIGHT * 0.4;
+          const dx = x - cx, dy = y - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 35) {
+            // Circle with edge highlight
+            const edge = dist > 30 ? 1 : 0;
+            const shade = 180 + (1 - dist / 35) * 60;
+            data[i] = shade;
+            data[i + 1] = shade * 0.6;
+            data[i + 2] = shade * 0.4;
+          } else {
+            // Background with texture
+            const noise = (Math.sin(x * 0.3) * Math.cos(y * 0.3) + 1) * 20;
+            data[i] = gradient + noise;
+            data[i + 1] = gradient * 0.85 + noise;
+            data[i + 2] = gradient * 0.7 + noise;
+          }
+          
+          data[i + 3] = 255;
+        }
+      }
+      
+      // Add some high-frequency detail (text-like pattern)
+      for (let y = HEIGHT - 50; y < HEIGHT - 20; y++) {
+        for (let x = 20; x < 100; x++) {
+          const i = (y * WIDTH + x) * 4;
+          if ((x + y) % 4 < 2) {
+            data[i] = Math.min(255, data[i] + 50);
+            data[i + 1] = Math.max(0, data[i + 1] - 30);
+          }
+        }
+      }
+      
+      originalCtx.putImageData(imageData, 0, 0);
+    }
+    
+    // Simulate block-based compression with quantization
+    function compressImage(quality) {
+      const sourceData = originalCtx.getImageData(0, 0, WIDTH, HEIGHT);
+      const destData = compressedCtx.createImageData(WIDTH, HEIGHT);
+      const src = sourceData.data;
+      const dest = destData.data;
+      
+      // Quality affects block size and quantization
+      const effectiveBlockSize = quality < 30 ? 16 : (quality < 60 ? 8 : 4);
+      const quantLevels = Math.max(2, Math.floor(quality / 5));
+      
+      for (let by = 0; by < HEIGHT; by += effectiveBlockSize) {
+        for (let bx = 0; bx < WIDTH; bx += effectiveBlockSize) {
+          // Calculate average color for block
+          let avgR = 0, avgG = 0, avgB = 0;
+          let count = 0;
+          
+          for (let y = by; y < Math.min(by + effectiveBlockSize, HEIGHT); y++) {
+            for (let x = bx; x < Math.min(bx + effectiveBlockSize, WIDTH); x++) {
+              const i = (y * WIDTH + x) * 4;
+              avgR += src[i];
+              avgG += src[i + 1];
+              avgB += src[i + 2];
+              count++;
+            }
+          }
+          
+          avgR = Math.round(avgR / count);
+          avgG = Math.round(avgG / count);
+          avgB = Math.round(avgB / count);
+          
+          // Quantize
+          avgR = Math.round(avgR / (256 / quantLevels)) * (256 / quantLevels);
+          avgG = Math.round(avgG / (256 / quantLevels)) * (256 / quantLevels);
+          avgB = Math.round(avgB / (256 / quantLevels)) * (256 / quantLevels);
+          
+          // Fill block with quantized average
+          for (let y = by; y < Math.min(by + effectiveBlockSize, HEIGHT); y++) {
+            for (let x = bx; x < Math.min(bx + effectiveBlockSize, WIDTH); x++) {
+              const i = (y * WIDTH + x) * 4;
+              dest[i] = avgR;
+              dest[i + 1] = avgG;
+              dest[i + 2] = avgB;
+              dest[i + 3] = 255;
+            }
+          }
+        }
+      }
+      
+      compressedCtx.putImageData(destData, 0, 0);
+    }
+    
+    function updateCompression() {
+      const quality = parseInt(bitrateSlider.value);
+      compressImage(quality);
+      
+      // Update label
+      if (quality >= 80) {
+        compressedLabel.textContent = 'High Bitrate (8+ Mbps)';
+      } else if (quality >= 50) {
+        compressedLabel.textContent = 'Medium Bitrate (4 Mbps)';
+      } else if (quality >= 25) {
+        compressedLabel.textContent = 'Low Bitrate (1 Mbps)';
+      } else {
+        compressedLabel.textContent = 'Very Low (< 1 Mbps)';
+      }
+    }
+    
+    bitrateSlider.addEventListener('input', updateCompression);
+    
+    // Initialize
+    createTestImage();
+    updateCompression();
+    
+    // === MOTION VECTOR DEMO ===
+    const motionCanvas = document.getElementById('motionCanvas');
+    const motionCtx = motionCanvas.getContext('2d');
+    
+    const MW = 280, MH = 180;
+    const MBLOCK = 20;
+    
+    // Simple scene with moving objects
+    let frame = 0;
+    let animating = false;
+    let animId = null;
+    
+    const objects = [
+      { x: 30, y: 40, w: 40, h: 40, vx: 1.5, vy: 0.5, color: '#E8A838' },
+      { x: 180, y: 100, w: 50, h: 30, vx: -1, vy: 0.3, color: '#B85C38' },
+      { x: 100, y: 120, w: 30, h: 30, vx: 0.8, vy: -0.4, color: '#9A4A2A' }
+    ];
+    
+    function drawMotionFrame() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const bgColor = isDark ? '#000000' : '#ffffff';
+      const textColor = isDark ? '#ffffff' : '#000000';
+      
+      // Clear
+      motionCtx.fillStyle = bgColor;
+      motionCtx.fillRect(0, 0, MW, MH);
+      
+      // Draw grid
+      motionCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+      motionCtx.lineWidth = 0.5;
+      for (let x = 0; x < MW; x += MBLOCK) {
+        motionCtx.beginPath();
+        motionCtx.moveTo(x, 0);
+        motionCtx.lineTo(x, MH);
+        motionCtx.stroke();
+      }
+      for (let y = 0; y < MH; y += MBLOCK) {
+        motionCtx.beginPath();
+        motionCtx.moveTo(0, y);
+        motionCtx.lineTo(MW, y);
+        motionCtx.stroke();
+      }
+      
+      // Draw objects
+      objects.forEach(obj => {
+        motionCtx.fillStyle = obj.color;
+        motionCtx.fillRect(obj.x, obj.y, obj.w, obj.h);
+      });
+      
+      // Draw motion vectors
+      motionCtx.strokeStyle = textColor;
+      motionCtx.fillStyle = textColor;
+      motionCtx.lineWidth = 1.5;
+      
+      for (let by = 0; by < MH; by += MBLOCK) {
+        for (let bx = 0; bx < MW; bx += MBLOCK) {
+          // Find which object (if any) covers this block
+          let bestObj = null;
+          let maxOverlap = 0;
+          
+          objects.forEach(obj => {
+            const overlapX = Math.max(0, Math.min(bx + MBLOCK, obj.x + obj.w) - Math.max(bx, obj.x));
+            const overlapY = Math.max(0, Math.min(by + MBLOCK, obj.y + obj.h) - Math.max(by, obj.y));
+            const overlap = overlapX * overlapY;
+            if (overlap > maxOverlap) {
+              maxOverlap = overlap;
+              bestObj = obj;
+            }
+          });
+          
+          if (bestObj && maxOverlap > MBLOCK * MBLOCK * 0.3) {
+            // Draw arrow for motion
+            const cx = bx + MBLOCK / 2;
+            const cy = by + MBLOCK / 2;
+            const endX = cx + bestObj.vx * 15;
+            const endY = cy + bestObj.vy * 15;
+            
+            // Arrow line
+            motionCtx.beginPath();
+            motionCtx.moveTo(cx, cy);
+            motionCtx.lineTo(endX, endY);
+            motionCtx.stroke();
+            
+            // Arrow head
+            const angle = Math.atan2(bestObj.vy, bestObj.vx);
+            const headLen = 5;
+            motionCtx.beginPath();
+            motionCtx.moveTo(endX, endY);
+            motionCtx.lineTo(endX - headLen * Math.cos(angle - Math.PI / 6), endY - headLen * Math.sin(angle - Math.PI / 6));
+            motionCtx.lineTo(endX - headLen * Math.cos(angle + Math.PI / 6), endY - headLen * Math.sin(angle + Math.PI / 6));
+            motionCtx.closePath();
+            motionCtx.fill();
+          }
+        }
+      }
+      
+      // Frame counter
+      motionCtx.fillStyle = textColor;
+      motionCtx.font = '10px JetBrains Mono, monospace';
+      motionCtx.fillText(`Frame ${frame}`, 10, MH - 10);
+    }
+    
+    function animate() {
+      if (!animating) return;
+      
+      frame++;
+      
+      // Move objects
+      objects.forEach(obj => {
+        obj.x += obj.vx;
+        obj.y += obj.vy;
+        
+        // Bounce
+        if (obj.x < 0 || obj.x + obj.w > MW) obj.vx *= -1;
+        if (obj.y < 0 || obj.y + obj.h > MH) obj.vy *= -1;
+        
+        obj.x = Math.max(0, Math.min(MW - obj.w, obj.x));
+        obj.y = Math.max(0, Math.min(MH - obj.h, obj.y));
+      });
+      
+      drawMotionFrame();
+      
+      if (frame < 120) {
+        animId = requestAnimationFrame(animate);
+      } else {
+        animating = false;
+        document.getElementById('playMotion').textContent = '▶ Play Again';
+      }
+    }
+    
+    document.getElementById('playMotion').addEventListener('click', () => {
+      if (animating) {
+        animating = false;
+        if (animId) cancelAnimationFrame(animId);
+        document.getElementById('playMotion').textContent = '▶ Play Again';
+      } else {
+        // Reset
+        frame = 0;
+        objects[0].x = 30; objects[0].y = 40;
+        objects[1].x = 180; objects[1].y = 100;
+        objects[2].x = 100; objects[2].y = 120;
+        
+        animating = true;
+        document.getElementById('playMotion').textContent = '⏸ Pause';
+        animate();
+      }
+    });
+    
+    // Initial draw
+    drawMotionFrame();
+    
+    // Redraw on theme change
+    const observer = new MutationObserver(() => {
+      drawMotionFrame();
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  </script>
+</body>
+</html>
