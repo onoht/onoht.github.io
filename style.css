@@ -13,6 +13,11 @@
   --muted: #666666;
   --border: #e0e0e0;
 
+  /* Light mode accents - Terracotta/Burnt Sienna */
+  --accent: #B85C38;
+  --accent-hover: #9A4A2A;
+  --accent-subtle: rgba(184, 92, 56, 0.1);
+
   /* Typography */
   --font: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   --text-xs: 12px;
@@ -39,6 +44,11 @@
   --text: #ffffff;
   --muted: #999999;
   --border: #222222;
+
+  /* Dark mode accents - Warm Amber */
+  --accent: #E8A838;
+  --accent-hover: #F0BA50;
+  --accent-subtle: rgba(232, 168, 56, 0.1);
 }
 
 /* Reset */
@@ -62,7 +72,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.4s ease-out, color 0.4s ease-out, border-color 0.4s ease-out;
 }
 
 /* Container */
@@ -92,8 +102,8 @@ a {
 }
 
 a:hover {
-  background: var(--text);
-  color: var(--bg);
+  color: var(--accent);
+  text-decoration-color: var(--accent);
 }
 
 /* Header */
@@ -117,10 +127,12 @@ header .container {
 
 .logo a {
   text-decoration: none;
+  transition: color 0.3s ease-out;
 }
 
 .logo a:hover {
   background: none;
+  color: var(--accent);
 }
 
 nav {
@@ -148,11 +160,13 @@ nav a:hover {
   font-size: var(--text-sm);
   padding: var(--space-xs) var(--space-sm);
   cursor: pointer;
+  transition: transform 0.2s ease-out, background 0.3s ease-out, color 0.3s ease-out, border-color 0.3s ease-out;
 }
 
 .theme-toggle:hover {
-  background: var(--text);
+  background: var(--accent);
   color: var(--bg);
+  border-color: var(--accent);
 }
 
 /* Main Content */
@@ -173,6 +187,8 @@ footer {
 footer .symbol {
   font-size: var(--text-lg);
   margin-bottom: var(--space-xs);
+  color: var(--accent);
+  transition: color 0.3s ease-out;
 }
 
 /* Post List */
@@ -204,11 +220,12 @@ footer .symbol {
 .post-title a {
   text-decoration: none;
   border-bottom: 1px solid var(--text);
+  transition: color 0.3s ease-out, border-color 0.3s ease-out;
 }
 
 .post-title a:hover {
-  background: var(--text);
-  color: var(--bg);
+  color: var(--accent);
+  border-bottom-color: var(--accent);
 }
 
 /* Post Single */
@@ -268,10 +285,13 @@ footer .symbol {
 }
 
 .post-content blockquote {
-  border-left: 2px solid var(--text);
+  border-left: 3px solid var(--accent);
   padding-left: var(--space-md);
   margin: var(--space-md) 0;
   color: var(--muted);
+  background: var(--accent-subtle);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 0 4px 4px 0;
 }
 
 /* Back Link */
@@ -416,6 +436,11 @@ footer .symbol {
   border: 1px solid var(--border);
   padding: var(--space-md);
   margin: var(--space-lg) 0;
+  transition: border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.demo:hover {
+  border-color: var(--accent);
 }
 
 .demo-label {
@@ -490,11 +515,12 @@ article h2 {
 article h2 a {
   text-decoration: none;
   border-bottom: 1px solid var(--text);
+  transition: color 0.3s ease-out, border-color 0.3s ease-out;
 }
 
 article h2 a:hover {
-  background: var(--text);
-  color: var(--bg);
+  color: var(--accent);
+  border-bottom-color: var(--accent);
 }
 
 /* Canvas and button styling for demos */
@@ -523,6 +549,233 @@ input[type="number"]:focus {
 
 label {
   cursor: pointer;
+}
+
+/* ========================================
+   ANIMATIONS - Refined, quiet confidence
+   ======================================== */
+
+/* Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInSubtle {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Entrance animations */
+header {
+  animation: fadeInSubtle 0.5s ease-out;
+}
+
+main {
+  animation: fadeIn 0.6s ease-out;
+}
+
+footer {
+  animation: fadeInSubtle 0.5s ease-out 0.1s both;
+}
+
+/* Staggered fade-in for post list items */
+.post-list li {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.post-list li:nth-child(1) { animation-delay: 0.1s; }
+.post-list li:nth-child(2) { animation-delay: 0.2s; }
+.post-list li:nth-child(3) { animation-delay: 0.3s; }
+.post-list li:nth-child(4) { animation-delay: 0.4s; }
+.post-list li:nth-child(5) { animation-delay: 0.5s; }
+.post-list li:nth-child(6) { animation-delay: 0.6s; }
+.post-list li:nth-child(7) { animation-delay: 0.7s; }
+.post-list li:nth-child(8) { animation-delay: 0.8s; }
+
+/* Article cards on index - staggered */
+article {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+article:nth-of-type(1) { animation-delay: 0.1s; }
+article:nth-of-type(2) { animation-delay: 0.2s; }
+article:nth-of-type(3) { animation-delay: 0.3s; }
+article:nth-of-type(4) { animation-delay: 0.4s; }
+article:nth-of-type(5) { animation-delay: 0.5s; }
+
+/* Post header animation */
+.post-header {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Post content staggered sections */
+.post-content > * {
+  animation: fadeInSubtle 0.4s ease-out;
+}
+
+/* Scroll reveal targets (activated via JS) */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========================================
+   MICRO-INTERACTIONS
+   ======================================== */
+
+/* Links: underline grows from center */
+a {
+  position: relative;
+  text-decoration: none;
+}
+
+a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.25s ease-out, left 0.25s ease-out;
+}
+
+a:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* Logo and nav links don't get underline animation */
+.logo a::after,
+nav a::after {
+  display: none;
+}
+
+/* Restore original nav link behavior */
+nav a {
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease-out;
+}
+
+nav a:hover {
+  border-bottom-color: var(--text);
+}
+
+/* Restore logo link */
+.logo a {
+  text-decoration: none;
+}
+
+/* Article cards: subtle lift on hover */
+.post-list li,
+article {
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+  border-radius: 2px;
+}
+
+.post-list li:hover,
+article:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .post-list li:hover,
+[data-theme="dark"] article:hover {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.04);
+}
+
+/* Theme toggle: gentle scale - hover handled above */
+/* Note: transition defined earlier, hover accent-color also defined earlier */
+
+/* Demo boxes: accent border on hover - handled in main demo section above */
+
+/* Post title links: keep their original style */
+.post-title a,
+article h2 a {
+  border-bottom: 1px solid var(--text);
+  transition: color 0.3s ease-out, border-color 0.3s ease-out;
+}
+
+.post-title a::after,
+article h2 a::after {
+  display: none;
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all entrance animations */
+  header,
+  main,
+  footer,
+  .post-list li,
+  article,
+  .post-header,
+  .post-content > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Simplify micro-interactions */
+  a::after {
+    transition: none;
+  }
+
+  .post-list li,
+  article {
+    transition: none;
+  }
+
+  .post-list li:hover,
+  article:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .theme-toggle {
+    transition: background 0.2s ease-out, color 0.2s ease-out;
+  }
+
+  .theme-toggle:hover {
+    transform: none;
+  }
+
+  .demo {
+    transition: none;
+  }
+
+  .demo:hover {
+    box-shadow: none;
+  }
+
+  /* Scroll reveal: instant */
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /* Utility */

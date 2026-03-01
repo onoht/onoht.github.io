@@ -4,7 +4,119 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>How Your Data Survives Corruption — ◯</title>
+  <script>
+    // Blocking theme initialization - runs before CSS to prevent flash
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <link rel="stylesheet" href="../style.css">
+  <style>
+    /* Demo box polish */
+    .demo {
+      position: relative;
+      background: 
+        linear-gradient(135deg, 
+          rgba(var(--demo-glow), 0.03) 0%, 
+          transparent 50%,
+          rgba(var(--demo-glow), 0.02) 100%
+        );
+      box-shadow: 
+        inset 0 1px 0 rgba(var(--demo-glow), 0.05),
+        inset 0 -1px 0 rgba(var(--demo-glow), 0.02);
+    }
+    
+    :root {
+      --demo-glow: 0, 0, 0;
+    }
+    
+    [data-theme="dark"] {
+      --demo-glow: 255, 255, 255;
+    }
+    
+    /* Corruption button styles */
+    .corrupt-btn {
+      width: 44px;
+      height: 44px;
+      font-size: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .corrupt-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--text);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    
+    .corrupt-btn:hover::before {
+      opacity: 0.05;
+    }
+    
+    .corrupt-btn:active {
+      transform: scale(0.96);
+    }
+    
+    .corrupt-btn.data-point {
+      background: var(--text);
+      color: var(--bg);
+    }
+    
+    .corrupt-btn.parity-point {
+      background: var(--bg);
+      color: var(--text);
+    }
+    
+    .corrupt-btn.corrupted {
+      animation: shake 0.4s ease;
+      background: var(--bg) !important;
+      color: var(--text) !important;
+      border-color: var(--text);
+    }
+    
+    .corrupt-btn.corrupted::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(var(--demo-glow), 0.1) 2px,
+        rgba(var(--demo-glow), 0.1) 4px
+      );
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-3px); }
+      40% { transform: translateX(3px); }
+      60% { transform: translateX(-2px); }
+      80% { transform: translateX(2px); }
+    }
+    
+    /* Pulse animation for recovery status */
+    @keyframes pulse-border {
+      0%, 100% { border-color: var(--border); }
+      50% { border-color: var(--text); }
+    }
+    
+    .status-recoverable {
+      animation: pulse-border 1.5s ease infinite;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -110,7 +222,7 @@
               <div id="corruption-buttons" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;"></div>
             </div>
 
-            <div style="margin-top: 24px; padding: 20px; border: 1px solid var(--border);">
+            <div style="margin-top: 24px; padding: 20px; border: 1px solid var(--border); transition: border-color 0.3s;" id="status-box">
               <p id="status" style="margin: 0; font-size: 14px;"></p>
             </div>
           </div>
@@ -270,38 +382,46 @@
 
   <script src="../theme-toggle.js"></script>
   <script>
-    // Polynomial demo
+    // Polynomial demo with smooth animations
     const canvas = document.getElementById('polyCanvas');
     const ctx = canvas.getContext('2d');
     
+    // Enable high DPI rendering
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    
     const dataPoints = [
-      {x: 1, y: 2, label: 'A', corrupted: false},
-      {x: 2, y: 5, label: 'B', corrupted: false},
-      {x: 3, y: 3, label: 'C', corrupted: false},
-      {x: 4, y: 7, label: 'D', corrupted: false},
+      {x: 1, y: 2, label: 'A', corrupted: false, opacity: 1},
+      {x: 2, y: 5, label: 'B', corrupted: false, opacity: 1},
+      {x: 3, y: 3, label: 'C', corrupted: false, opacity: 1},
+      {x: 4, y: 7, label: 'D', corrupted: false, opacity: 1},
     ];
     
     const checkPoints = [
-      {x: 5, y: 4, label: 'P1', corrupted: false},
-      {x: 6, y: 6, label: 'P2', corrupted: false},
+      {x: 5, y: 4, label: 'P1', corrupted: false, opacity: 1},
+      {x: 6, y: 6, label: 'P2', corrupted: false, opacity: 1},
     ];
+    
+    let curveProgress = 1;
+    let animationFrame = null;
 
     function getComputedStyleVar(varName) {
       return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
     }
 
-    function drawGraph() {
-      const textColor = getComputedStyleVar('--text');
-      const bgColor = getComputedStyleVar('--bg');
+    function drawGrid() {
       const borderColor = getComputedStyleVar('--border');
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Grid
+      // Draw subtle grid pattern
       ctx.strokeStyle = borderColor;
-      ctx.lineWidth = 0.5;
+      ctx.lineWidth = 0.3;
+      
       for (let i = 0; i <= 7; i++) {
         const x = 50 + i * 60;
         ctx.beginPath();
@@ -310,62 +430,215 @@
         ctx.stroke();
       }
       
-      // Draw polynomial curve
-      const allPoints = [...dataPoints, ...checkPoints].filter(p => !p.corrupted);
-      if (allPoints.length >= 4) {
-        ctx.strokeStyle = textColor;
-        ctx.lineWidth = 2;
+      for (let j = 0; j <= 8; j++) {
+        const y = 20 + j * 26.25;
         ctx.beginPath();
-        ctx.moveTo(50 + allPoints[0].x * 60, 230 - allPoints[0].y * 25);
-        for (let i = 1; i < allPoints.length; i++) {
-          ctx.lineTo(50 + allPoints[i].x * 60, 230 - allPoints[i].y * 25);
-        }
+        ctx.moveTo(50, y);
+        ctx.lineTo(410, y);
         ctx.stroke();
       }
       
-      // Draw points
+      // Subtle dot pattern at intersections
+      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
+      for (let i = 0; i <= 7; i++) {
+        for (let j = 0; j <= 8; j++) {
+          const x = 50 + i * 60;
+          const y = 20 + j * 26.25;
+          ctx.beginPath();
+          ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function interpolatePolynomial(points, x) {
+      // Simple polynomial interpolation for smooth curve
+      let result = 0;
+      const n = points.length;
+      
+      for (let i = 0; i < n; i++) {
+        let term = points[i].y;
+        for (let j = 0; j < n; j++) {
+          if (i !== j) {
+            term *= (x - points[j].x) / (points[i].x - points[j].x);
+          }
+        }
+        result += term;
+      }
+      return result;
+    }
+
+    function drawCurve(progress) {
+      const textColor = getComputedStyleVar('--text');
+      const allPoints = [...dataPoints, ...checkPoints].filter(p => !p.corrupted);
+      
+      if (allPoints.length >= 4) {
+        ctx.strokeStyle = textColor;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        const startX = 50;
+        const endX = 50 + 6 * 60 * progress;
+        
+        ctx.beginPath();
+        let first = true;
+        
+        for (let px = startX; px <= endX; px += 2) {
+          const x = (px - 50) / 60;
+          const y = interpolatePolynomial(allPoints, x);
+          const canvasY = 230 - y * 25;
+          
+          if (first) {
+            ctx.moveTo(px, canvasY);
+            first = false;
+          } else {
+            ctx.lineTo(px, canvasY);
+          }
+        }
+        ctx.stroke();
+      }
+    }
+
+    function drawPoints() {
+      const textColor = getComputedStyleVar('--text');
+      const bgColor = getComputedStyleVar('--bg');
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      
       [...dataPoints, ...checkPoints].forEach((point, idx) => {
         const x = 50 + point.x * 60;
         const y = 230 - point.y * 25;
+        const opacity = point.opacity;
+        
+        ctx.globalAlpha = opacity;
+        
+        // Glow effect for active points
+        if (!point.corrupted && opacity > 0.5) {
+          const gradient = ctx.createRadialGradient(x, y, 0, x, y, 20);
+          gradient.addColorStop(0, isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)');
+          gradient.addColorStop(1, 'transparent');
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(x, y, 20, 0, Math.PI * 2);
+          ctx.fill();
+        }
         
         ctx.beginPath();
         ctx.arc(x, y, 10, 0, Math.PI * 2);
         
         if (point.corrupted) {
+          // Corrupted point - hollow with X
           ctx.fillStyle = bgColor;
           ctx.fill();
           ctx.strokeStyle = textColor;
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([3, 3]);
           ctx.stroke();
+          ctx.setLineDash([]);
+          
           ctx.fillStyle = textColor;
           ctx.font = '12px JetBrains Mono, monospace';
-          ctx.fillText('✗', x - 4, y + 4);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('✗', x, y);
         } else {
-          ctx.fillStyle = idx < 4 ? textColor : bgColor;
+          // Active point
+          const isDataPoint = idx < 4;
+          ctx.fillStyle = isDataPoint ? textColor : bgColor;
           ctx.fill();
           ctx.strokeStyle = textColor;
-          ctx.lineWidth = idx < 4 ? 0 : 2;
-          if (idx >= 4) ctx.stroke();
-          ctx.fillStyle = idx < 4 ? bgColor : textColor;
+          ctx.lineWidth = isDataPoint ? 0 : 2;
+          if (!isDataPoint) ctx.stroke();
+          
+          ctx.fillStyle = isDataPoint ? bgColor : textColor;
           ctx.font = 'bold 10px JetBrains Mono, monospace';
-          ctx.fillText(point.label, x - 5, y + 4);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(point.label, x, y + 1);
         }
+        
+        ctx.globalAlpha = 1;
       });
     }
 
+    function drawGraph() {
+      const bgColor = getComputedStyleVar('--bg');
+      
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      
+      drawGrid();
+      drawCurve(curveProgress);
+      drawPoints();
+    }
+
+    function animateCurve() {
+      curveProgress = 0;
+      const startTime = performance.now();
+      const duration = 350;
+      
+      function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        curveProgress = Math.min(1, elapsed / duration);
+        
+        // Ease out cubic
+        curveProgress = 1 - Math.pow(1 - curveProgress, 3);
+        
+        drawGraph();
+        
+        if (curveProgress < 1) {
+          animationFrame = requestAnimationFrame(animate);
+        }
+      }
+      
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(animate);
+    }
+
+    function animateCorruption(point, toCorrupted) {
+      const duration = 200;
+      const startTime = performance.now();
+      
+      function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        
+        // Ease out
+        const eased = 1 - Math.pow(1 - progress, 2);
+        
+        if (toCorrupted) {
+          point.opacity = 1 - eased * 0.7;
+        } else {
+          point.opacity = 0.3 + eased * 0.7;
+        }
+        
+        drawGraph();
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    }
+
     canvas.addEventListener('click', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const canvasRect = canvas.getBoundingClientRect();
+      const scaleX = rect.width / canvasRect.width;
+      const scaleY = rect.height / canvasRect.height;
+      const x = (e.clientX - canvasRect.left) * scaleX;
+      const y = (e.clientY - canvasRect.top) * scaleY;
       
       [...dataPoints, ...checkPoints].forEach(point => {
         const px = 50 + point.x * 60;
         const py = 230 - point.y * 25;
         const dist = Math.sqrt((x - px) ** 2 + (y - py) ** 2);
         
-        if (dist < 15) {
+        if (dist < 18) {
           point.corrupted = !point.corrupted;
-          drawGraph();
+          animateCorruption(point, point.corrupted);
+          animateCurve();
         }
       });
     });
@@ -374,9 +647,13 @@
     const observer = new MutationObserver(() => drawGraph());
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-    drawGraph();
+    // Initial animation
+    setTimeout(() => {
+      drawGraph();
+      animateCurve();
+    }, 100);
 
-    // QR demo
+    // QR demo with polished buttons
     const originalSymbols = ['H', 'E', 'L', 'L', 'O'];
     const paritySymbols = ['K', 'R', '7', 'X'];
     let corrupted = new Array(9).fill(false);
@@ -385,21 +662,21 @@
       const container = document.getElementById('corruption-buttons');
       container.innerHTML = '';
       
-      const textColor = getComputedStyleVar('--text');
-      const bgColor = getComputedStyleVar('--bg');
-      const borderColor = getComputedStyleVar('--border');
-      
       [...originalSymbols, ...paritySymbols].forEach((sym, idx) => {
         const btn = document.createElement('button');
         btn.textContent = corrupted[idx] ? '�' : sym;
-        btn.style.width = '40px';
-        btn.style.height = '40px';
-        btn.style.fontSize = '16px';
-        btn.style.fontFamily = 'JetBrains Mono, monospace';
-        btn.style.border = `1px solid ${borderColor}`;
-        btn.style.background = corrupted[idx] ? textColor : (idx < 5 ? textColor : bgColor);
-        btn.style.color = corrupted[idx] ? bgColor : (idx < 5 ? bgColor : textColor);
-        btn.style.cursor = 'pointer';
+        btn.className = 'corrupt-btn';
+        
+        if (idx < 5) {
+          btn.classList.add('data-point');
+        } else {
+          btn.classList.add('parity-point');
+        }
+        
+        if (corrupted[idx]) {
+          btn.classList.add('corrupted');
+        }
+        
         btn.onclick = () => toggleCorruption(idx);
         container.appendChild(btn);
       });
@@ -413,12 +690,16 @@
 
     function updateStatus() {
       const status = document.getElementById('status');
+      const statusBox = document.getElementById('status-box');
       const errorCount = corrupted.filter(c => c).length;
+      
+      statusBox.classList.remove('status-recoverable');
       
       if (errorCount === 0) {
         status.innerHTML = 'All symbols intact. Message can be read directly.';
       } else if (errorCount <= 2) {
         status.innerHTML = `${errorCount} symbol${errorCount > 1 ? 's' : ''} corrupted. <strong>Message can be recovered</strong> using parity symbols.`;
+        statusBox.classList.add('status-recoverable');
       } else {
         status.innerHTML = `${errorCount} symbols corrupted. <strong>Too many errors</strong> — message is unrecoverable.`;
       }

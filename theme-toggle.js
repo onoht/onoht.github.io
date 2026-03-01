@@ -1,15 +1,7 @@
-// Theme Toggle - Include in all repos
+// Theme Toggle - handles button click only
+// Theme initialization is done via inline script in <head> to prevent flash
 (function() {
   const toggle = document.querySelector('.theme-toggle');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const saved = localStorage.getItem('theme');
-
-  // Set initial theme
-  if (saved) {
-    document.documentElement.setAttribute('data-theme', saved);
-  } else if (prefersDark) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
 
   // Toggle on click
   if (toggle) {

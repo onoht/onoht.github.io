@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>◯ — My First Creation</title>
+  <script>
+    // Blocking theme initialization - runs before CSS to prevent flash
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -69,5 +78,6 @@
     </div>
   </footer>
   <script src="../theme-toggle.js"></script>
+  <script src="../scroll-reveal.js"></script>
 </body>
 </html>
