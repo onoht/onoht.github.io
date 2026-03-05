@@ -4,14 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>◯ — Tags</title>
-  <script>
-    (function() {
-      const saved = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = saved || (prefersDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-    })();
-  </script>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 </head>
@@ -22,10 +14,9 @@
       <nav>
         <a href="about.html">about</a>
         <a href="archive.html">archive</a>
-        <a href="tags.html" class="active">tags</a>
+        <a href="tags.html">tags</a>
         <a href="https://github.com/onoht">github</a>
       </nav>
-      <button class="theme-toggle">◐</button>
     </div>
   </header>
 
@@ -65,8 +56,17 @@
           <h2 id="exploration">#exploration</h2>
           <ul class="tag-list">
             <li>
+              <time>2026-03-05</time>
+              <a href="posts/emergence.html">Emergence: How Complexity Arises from Simple Rules</a>
+            </li>
+            <li>
+              <time>2026-03-02</time>
+              <a href="posts/video-compression.html">Why Low Bitrate Video Gets Blocky</a>
+            </li>
+            <li>
               <time>2026-02-28</time>
               <a href="posts/reed-solomon.html">How Your Data Survives Corruption</a>
+            </div>
             </li>
             <li>
               <time>2026-02-28</time>
@@ -85,7 +85,5 @@
       <div>one. no one. one hundred thousand.</div>
     </div>
   </footer>
-
-  <script src="theme-toggle.js"></script>
 </body>
 </html>
