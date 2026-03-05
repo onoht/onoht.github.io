@@ -107,13 +107,35 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
   line-height: var(--leading-tight);
+  color: var(--text);
+  letter-spacing: -0.02em;
 }
 
-h1 { font-size: var(--text-2xl); }
-h2 { font-size: var(--text-xl); margin-top: var(--space-12); margin-bottom: var(--space-4); }
-h3 { font-size: var(--text-lg); margin-top: var(--space-8); margin-bottom: var(--space-4); font-weight: 500; }
+h1 { 
+  font-size: var(--text-2xl); 
+  margin-bottom: var(--space-4);
+}
 
-p { margin-bottom: var(--space-4); }
+h2 { 
+  font-size: var(--text-xl); 
+  margin-top: var(--space-12); 
+  margin-bottom: var(--space-6);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+h3 { 
+  font-size: var(--text-lg); 
+  margin-top: var(--space-10); 
+  margin-bottom: var(--space-5);
+  font-weight: 600;
+  color: var(--text);
+}
+
+p { 
+  margin-bottom: var(--space-5);
+  line-height: 1.7;
+}
 
 /* Links: cyan accent + underline, invert on hover */
 a {
@@ -228,8 +250,8 @@ nav {
 .post-list li,
 .archive-list li,
 article {
-  margin-bottom: var(--space-6);
-  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-8);
+  padding-bottom: var(--space-8);
   border-bottom: var(--line-thin) solid var(--border);
 }
 
@@ -242,9 +264,10 @@ article:last-of-type {
 /* Demo boxes (for interactive explorations) */
 .demo {
   border: var(--line-thin) solid var(--border);
-  padding: var(--space-6);
-  margin: var(--space-6) 0;
+  padding: var(--space-8);
+  margin: var(--space-10) 0;
   transition: border-color var(--duration-normal) var(--ease-out);
+  background: var(--bg-raised);
 }
 
 .demo:hover { border-color: var(--accent); }
@@ -268,9 +291,9 @@ article:last-of-type {
 pre {
   background: var(--text-dim);
   color: var(--text);
-  padding: var(--space-4);
+  padding: var(--space-6);
   overflow-x: auto;
-  margin-bottom: var(--space-4);
+  margin: var(--space-8) 0;
   font-size: var(--text-sm);
   border: var(--line-thin) solid var(--border);
 }
@@ -292,21 +315,23 @@ pre code { padding: 0; }
 /* Blockquote */
 blockquote {
   border-left: var(--line) solid var(--accent);
-  padding: var(--space-4);
-  margin: var(--space-4) 0;
+  padding: var(--space-6) var(--space-6);
+  margin: var(--space-8) 0;
   color: var(--text-muted);
+  background: var(--bg-raised);
+  font-style: italic;
 }
 
 /* Tables */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin: var(--space-4) 0;
+  margin: var(--space-8) 0;
   font-size: var(--text-sm);
 }
 
 th, td {
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-4) var(--space-4);
   text-align: left;
   border-bottom: var(--line-thin) solid var(--border);
 }
@@ -370,7 +395,8 @@ canvas {
   font-size: var(--text-sm);
   color: var(--text-muted);
   display: block;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+  letter-spacing: 0.05em;
 }
 
 .post-title { font-size: var(--text-lg); }
@@ -384,26 +410,33 @@ canvas {
 
 /* --- Single Post --- */
 .post-header {
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-12);
+  padding-bottom: var(--space-8);
+  border-bottom: var(--line-thin) solid var(--border);
 }
 
 .post-meta {
   font-size: var(--text-sm);
   color: var(--text-muted);
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .post-content {
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-12);
+  padding-top: var(--space-4);
 }
 
 .post-content ul,
 .post-content ol {
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-8);
+  margin-top: var(--space-4);
   padding-left: var(--space-6);
+  line-height: 1.7;
 }
 
-.post-content li { margin-bottom: var(--space-2); }
+.post-content li { 
+  margin-bottom: var(--space-3);
+}
 
 .back-link {
   display: inline-block;
