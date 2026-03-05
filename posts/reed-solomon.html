@@ -642,7 +642,7 @@
       animateCurve();
     }, 100);
 
-    // QR demo with polished buttons
+    // QR demo with polished buttons - using event delegation for better performance
     const originalSymbols = ['H', 'E', 'L', 'L', 'O'];
     const paritySymbols = ['K', 'R', '7', 'X'];
     let corrupted = new Array(9).fill(false);
@@ -655,6 +655,7 @@
         const btn = document.createElement('button');
         btn.textContent = corrupted[idx] ? '�' : sym;
         btn.className = 'corrupt-btn';
+        btn.dataset.index = idx;
         
         if (idx < 5) {
           btn.classList.add('data-point');
@@ -666,10 +667,20 @@
           btn.classList.add('corrupted');
         }
         
-        btn.onclick = () => toggleCorruption(idx);
         container.appendChild(btn);
       });
     }
+
+    // Event delegation - single listener on container
+    document.getElementById('corruption-buttons').addEventListener('click', (e) => {
+      const btn = e.target.closest('.corrupt-btn');
+      if (btn && btn.dataset.index !== undefined) {
+        const idx = parseInt(btn.dataset.index);
+        corrupted[idx] = !corrupted[idx];
+        createButtons();
+        updateStatus();
+      }
+    });
 
     function toggleCorruption(idx) {
       corrupted[idx] = !corrupted[idx];

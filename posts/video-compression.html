@@ -295,6 +295,9 @@
             <input type="range" class="bitrate-slider" id="bitrateSlider" min="1" max="100" value="100">
             <span style="font-size: 12px;">High</span>
           </div>
+          <div style="text-align: center; margin-top: 8px; font-size: 13px; color: var(--text-muted);">
+            Quality: <span id="qualityValue" style="color: var(--accent); font-weight: 500;">100%</span>
+          </div>
           <p class="interactive-hint">Lower the bitrate to see block artifacts emerge. High-frequency details disappear first.</p>
         </div>
 
@@ -673,6 +676,12 @@
     function updateCompression() {
       const quality = parseInt(bitrateSlider.value);
       compressImage(quality);
+      
+      // Update quality indicator
+      const qualityValue = document.getElementById('qualityValue');
+      if (qualityValue) {
+        qualityValue.textContent = quality + '%';
+      }
       
       // Update label
       if (quality >= 80) {

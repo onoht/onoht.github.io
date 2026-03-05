@@ -62,17 +62,17 @@
       font-weight: 400;
       margin-top: var(--space-2);
       color: var(--accent);
-      transition: opacity var(--duration-fast) var(--ease-out);
+      transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
     }
 
     .shared-secret-value.pulse {
-      animation: secret-pulse var(--duration-normal) var(--ease-out);
+      animation: secret-pulse var(--duration-slow) var(--ease-out);
     }
 
     @keyframes secret-pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.6; }
-      100% { opacity: 1; }
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
