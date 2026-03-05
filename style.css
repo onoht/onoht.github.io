@@ -4,7 +4,7 @@
 
 /* PHILOSOPHY:
    - Dark-only: True black, OLED friendly
-   - ONE accent: Cyan (#00ffff)
+   - ONE accent: Amber (#ffb84d)
    - No decoration: Every element serves a purpose
    - No gradients: Flat colors only
    - No shadows: Depth through contrast, not effects
@@ -24,17 +24,19 @@
 
   /* Text - Pure contrast */
   --text: #ffffff;
-  --text-muted: #666666;
-  --text-dim: #333333;
+  --text-muted: #888888;
+  --text-dim: #444444;
 
-  /* ONE accent - Cyan */
-  --accent: #00ffff;
-  --accent-dim: #006666;
+  /* ONE accent - Amber */
+  --accent: #ffb84d;
+  --accent-hover: #ff9500;
+  --accent-dim: #995a00;
+  --accent-glow: rgba(255, 184, 77, 0.08);
 
   /* Borders & lines */
-  --border: #222222;
-  --border-subtle: #111111;
-  --grid: #111111;
+  --border: #1a1a1a;
+  --border-subtle: #0d0d0d;
+  --grid: #0f0f0f;
 
   /* Typography - Fira Code with ligatures */
   --font: "Fira Code", "JetBrains Mono", "Menlo", "SF Mono", monospace;
