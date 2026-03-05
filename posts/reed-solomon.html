@@ -76,28 +76,17 @@
     }
     
     .corrupt-btn.parity-point {
-      background: var(--bg);
-      color: var(--text);
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
     }
-    
+
     .corrupt-btn.corrupted {
       animation: shake 0.4s ease;
-      background: var(--bg) !important;
-      color: var(--text) !important;
-      border-color: var(--text);
-    }
-    
-    .corrupt-btn.corrupted::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 2px,
-        rgba(var(--demo-glow), 0.1) 2px,
-        rgba(var(--demo-glow), 0.1) 4px
-      );
+      background: transparent !important;
+      color: var(--accent) !important;
+      border-color: var(--accent);
+      text-decoration: line-through;
     }
     
     @keyframes shake {
@@ -129,7 +118,6 @@
         <a href="../tags.html">tags</a>
         <a href="https://github.com/onoht">github</a>
       </nav>
-      <button class="theme-toggle">◐</button>
     </div>
   </header>
 
@@ -184,8 +172,8 @@
           <div class="demo-label">Interactive: Polynomial Interpolation</div>
           <div id="poly-demo">
             <p style="text-align: center; margin-bottom: 20px; font-size: 14px;">
-              <strong>Original message:</strong> 4 data points (black)<br>
-              <strong>Redundancy:</strong> 2 check points (white)
+              <strong>Original message:</strong> 4 data points (white)<br>
+              <strong>Redundancy:</strong> 2 check points (cyan)
             </p>
             <canvas id="polyCanvas" width="500" height="250" style="display: block; margin: 0 auto; max-width: 100%;"></canvas>
             <p class="interactive-hint">Click on points to "corrupt" them. As long as 4 points remain, the polynomial can be reconstructed.</p>
@@ -212,7 +200,7 @@
               <div style="text-align: center;">
                 <div style="font-size: 12px; margin-bottom: 8px;">With Redundancy (Level M)</div>
                 <div id="encoded-data" style="font-size: 16px; letter-spacing: 3px; padding: 12px; border: 1px solid var(--border);">
-                  H E L L O <span style="border: 1px solid var(--text); padding: 0 4px;">K R 7 X</span>
+                  H E L L O <span style="border: 1px solid var(--accent); padding: 0 4px; color: var(--accent);">K R 7 X</span>
                 </div>
               </div>
             </div>
@@ -382,7 +370,6 @@
     </div>
   </footer>
 
-  <script src="../theme-toggle.js"></script>
   <script>
     // Polynomial demo with smooth animations
     const canvas = document.getElementById('polyCanvas');

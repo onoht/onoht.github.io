@@ -7,31 +7,9 @@
   <link rel="stylesheet" href="../style.css">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <style>
-    /* Demo box polish */
-    .demo {
-      position: relative;
-      background: 
-        linear-gradient(135deg, 
-          rgba(var(--demo-glow), 0.03) 0%, 
-          transparent 50%,
-          rgba(var(--demo-glow), 0.02) 100%
-        );
-      box-shadow: 
-        inset 0 1px 0 rgba(var(--demo-glow), 0.05),
-        inset 0 -1px 0 rgba(var(--demo-glow), 0.02);
-    }
-    
-    :root {
-      --demo-glow: 0, 0, 0;
-    }
-    
-    [data-theme="dark"] {
-      --demo-glow: 255, 255, 255;
-    }
-    
-    /* Number input styling */
+    /* Demo styling - wireframe aesthetic */
     .secret-input {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: "Fira Code", "JetBrains Mono", monospace;
       font-size: 16px;
       width: 64px;
       padding: 10px 12px;
@@ -39,97 +17,62 @@
       background: var(--bg);
       color: var(--text);
       text-align: center;
-      transition: all 0.2s ease;
       -moz-appearance: textfield;
+      transition: border-color var(--duration-fast) var(--ease-out);
     }
-    
+
     .secret-input::-webkit-outer-spin-button,
     .secret-input::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
     }
-    
-    .secret-input:hover {
-      border-color: var(--muted);
-    }
-    
+
     .secret-input:focus {
       outline: none;
-      border-color: var(--text);
-      box-shadow: 0 0 0 2px rgba(var(--demo-glow), 0.1);
+      border-color: var(--accent);
     }
-    
-    /* Shared secret display */
-    .shared-secret-box {
-      margin-top: 32px;
-      padding: 24px;
-      border: 1px solid var(--border);
-      transition: all 0.3s ease;
-    }
-    
-    .shared-secret-value {
-      font-size: 40px;
-      font-weight: 400;
-      margin-top: 8px;
-      transition: transform 0.3s ease, opacity 0.2s ease;
-    }
-    
-    @keyframes secret-pulse {
-      0% {
-        transform: scale(1);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(1.08);
-        opacity: 0.8;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-    
-    .shared-secret-value.pulse {
-      animation: secret-pulse 0.4s ease;
-    }
-    
-    @keyframes border-glow {
-      0% {
-        border-color: var(--border);
-        box-shadow: none;
-      }
-      50% {
-        border-color: var(--text);
-        box-shadow: 0 0 20px rgba(var(--demo-glow), 0.1);
-      }
-      100% {
-        border-color: var(--border);
-        box-shadow: none;
-      }
-    }
-    
-    .shared-secret-box.glow {
-      animation: border-glow 0.5s ease;
-    }
-    
-    /* Public value display */
+
     .public-value {
       margin-left: 16px;
-      font-size: 14px;
-      color: var(--muted);
-      transition: color 0.2s ease;
+      font-size: var(--text-sm);
+      color: var(--text-muted);
     }
-    
+
     .secret-row {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
       gap: 8px;
-      margin: 24px 0;
+      margin: var(--space-6) 0;
     }
-    
+
     .secret-row label {
-      font-size: 14px;
+      font-size: var(--text-sm);
+    }
+
+    .shared-secret-box {
+      margin-top: var(--space-6);
+      padding: var(--space-6);
+      border: 1px solid var(--border);
+      transition: border-color var(--duration-normal) var(--ease-out);
+    }
+
+    .shared-secret-value {
+      font-size: 40px;
+      font-weight: 400;
+      margin-top: var(--space-2);
+      color: var(--accent);
+      transition: opacity var(--duration-fast) var(--ease-out);
+    }
+
+    .shared-secret-value.pulse {
+      animation: secret-pulse var(--duration-normal) var(--ease-out);
+    }
+
+    @keyframes secret-pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
     }
   </style>
 </head>
@@ -143,7 +86,6 @@
         <a href="../tags.html">tags</a>
         <a href="https://github.com/onoht">github</a>
       </nav>
-      <button class="theme-toggle">◐</button>
     </div>
   </header>
 
@@ -165,7 +107,7 @@
 
         <div class="demo">
           <div class="demo-label">The Paradox</div>
-          <p style="text-align: center; font-size: 14px; line-height: 2;">
+          <p style="text-align: center; font-size: var(--text-sm); line-height: 2;">
             To communicate securely, you need a shared secret.<br>
             To share a secret, you need to communicate securely.
           </p>
@@ -178,21 +120,21 @@
         <p>Before we get to the math, let's use colors. Imagine mixing paint.</p>
 
         <div class="demo">
-          <div class="demo-label">Interactive: Color Mixing</div>
+          <div class="demo-label">Color Mixing</div>
           <div id="paint-demo" style="display: flex; gap: 40px; justify-content: center; align-items: center; flex-wrap: wrap;">
             <div style="text-align: center;">
-              <div style="width: 60px; height: 60px; background: #000000; border-radius: 50%; margin: 0 auto 8px;"></div>
-              <span style="font-size: 12px;">Alice's secret</span>
+              <div style="width: 60px; height: 60px; border: 2px solid var(--accent); margin: 0 auto 8px;"></div>
+              <span style="font-size: var(--text-xs);">Alice's secret</span>
             </div>
-            <div style="font-size: 20px;">+</div>
+            <div style="font-size: var(--text-xl);">+</div>
             <div style="text-align: center;">
-              <div style="width: 60px; height: 60px; background: #000000; border: 1px solid var(--text); margin: 0 auto 8px;"></div>
-              <span style="font-size: 12px;">Public base</span>
+              <div style="width: 60px; height: 60px; border: 1px solid var(--text); margin: 0 auto 8px;"></div>
+              <span style="font-size: var(--text-xs);">Public base</span>
             </div>
-            <div style="font-size: 20px;">=</div>
+            <div style="font-size: var(--text-xl);">=</div>
             <div style="text-align: center;">
-              <div style="width: 60px; height: 60px; background: var(--bg); border: 1px solid var(--text); margin: 0 auto 8px;"></div>
-              <span style="font-size: 12px;">Mixed (sent)</span>
+              <div style="width: 60px; height: 60px; border: 1px solid var(--text); margin: 0 auto 8px;"></div>
+              <span style="font-size: var(--text-xs);">Mixed (sent)</span>
             </div>
           </div>
           <p class="interactive-hint">Simplification. Real math is one-way — easy to mix, nearly impossible to unmix.</p>
@@ -224,7 +166,7 @@
 
         <div class="demo">
           <div class="demo-label">The Magic</div>
-          <pre style="background: transparent; font-size: 14px; padding: 0;">
+          <pre style="background: transparent; font-size: var(--text-sm); padding: 0; border: none;">
 Alice: s = B^a mod p = (g^b)^a mod p = g^(ba) mod p
 Bob:   s = A^b mod p = (g^a)^b mod p = g^(ab) mod p
 
@@ -241,22 +183,22 @@ Since ba = ab: Alice and Bob get the same s!
         <div class="demo">
           <div class="demo-label">Interactive Demo</div>
           <div id="dh-demo">
-            <p style="margin-bottom: 20px;"><strong>Public parameters:</strong> p = 23, g = 5</p>
-            
+            <p style="margin-bottom: var(--space-6);"><strong>Public parameters:</strong> p = 23, g = 5</p>
+
             <div class="secret-row">
               <label>Alice's secret (a):</label>
               <input type="number" id="alice-secret" class="secret-input" value="6" min="1" max="22">
               <span id="alice-public" class="public-value"></span>
             </div>
-            
+
             <div class="secret-row">
               <label>Bob's secret (b):</label>
               <input type="number" id="bob-secret" class="secret-input" value="15" min="1" max="22">
               <span id="bob-public" class="public-value"></span>
             </div>
-            
+
             <div class="shared-secret-box" id="secret-box">
-              <p style="margin: 0; font-size: 14px;"><strong>Shared secret:</strong></p>
+              <p style="margin: 0; font-size: var(--text-sm);"><strong>Shared secret:</strong></p>
               <p id="shared-secret" class="shared-secret-value"></p>
             </div>
           </div>
@@ -275,7 +217,7 @@ Since ba = ab: Alice and Bob get the same s!
 
         <p>To find the secret, Eve needs either <code>a</code> or <code>b</code>. She needs to solve:</p>
 
-        <p style="text-align: center; font-size: 16px;">5^a ≡ 8 (mod 23)</p>
+        <p style="text-align: center; font-size: var(--text-base);">5^a ≡ 8 (mod 23)</p>
 
         <p>In this tiny example, Eve could try all possibilities (brute force). But with a 2048-bit prime, there are more possibilities than atoms in the observable universe. The best known algorithms still take longer than the universe has existed.</p>
 
@@ -293,7 +235,7 @@ Since ba = ab: Alice and Bob get the same s!
 
         <div class="demo">
           <div class="demo-label">The Key Insight</div>
-          <p style="text-align: center; font-size: 16px; line-height: 2;">
+          <p style="text-align: center; font-size: var(--text-base); line-height: 2;">
             Some operations are easy in one direction<br>
             but nearly impossible to reverse.<br><br>
             <strong>This asymmetry is the foundation of modern cryptography.</strong>
@@ -301,8 +243,8 @@ Since ba = ab: Alice and Bob get the same s!
         </div>
 
         <p class="further-reading">
-          <strong>Further reading:</strong> 
-          <a href="https://ee.stanford.edu/~hellman/publications/24.pdf" target="_blank" rel="noopener">The original 1976 paper</a> · 
+          <strong>Further reading:</strong>
+          <a href="https://ee.stanford.edu/~hellman/publications/24.pdf" target="_blank" rel="noopener">The original 1976 paper</a> ·
           <a href="https://en.wikipedia.org/wiki/Elliptic-curve_Diffie%E2%80%93Hellman" target="_blank" rel="noopener">Elliptic Curve Diffie-Hellman</a> (modern variant) ·
           <a href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack" target="_blank" rel="noopener">Man-in-the-middle attacks</a> (the catch)
         </p>
@@ -317,7 +259,6 @@ Since ba = ab: Alice and Bob get the same s!
     </div>
   </footer>
 
-  <script src="../theme-toggle.js"></script>
   <script>
     let lastSecret = null;
 
@@ -337,42 +278,35 @@ Since ba = ab: Alice and Bob get the same s!
     function update() {
       const p = 23;
       const g = 5;
-      
+
       const a = Math.max(1, Math.min(22, parseInt(document.getElementById('alice-secret').value) || 1));
       const b = Math.max(1, Math.min(22, parseInt(document.getElementById('bob-secret').value) || 1));
-      
+
       // Update input values if they were clamped
       document.getElementById('alice-secret').value = a;
       document.getElementById('bob-secret').value = b;
-      
+
       const A = modPow(g, a, p);
       const B = modPow(g, b, p);
-      
+
       const sAlice = modPow(B, a, p);
       const sBob = modPow(A, b, p);
-      
+
       document.getElementById('alice-public').textContent = `→ Public: A = ${A}`;
       document.getElementById('bob-public').textContent = `→ Public: B = ${B}`;
-      
+
       const secretEl = document.getElementById('shared-secret');
-      const secretBox = document.getElementById('secret-box');
       const newSecret = sAlice;
-      
+
       // Trigger pulse animation on change
       if (lastSecret !== null && lastSecret !== newSecret) {
         secretEl.classList.remove('pulse');
-        secretBox.classList.remove('glow');
-        
-        // Force reflow
-        void secretEl.offsetWidth;
-        
+        void secretEl.offsetWidth; // Force reflow
         secretEl.classList.add('pulse');
-        secretBox.classList.add('glow');
       }
-      
+
       lastSecret = newSecret;
       secretEl.textContent = newSecret;
-      secretEl.style.color = sAlice === sBob ? 'var(--text)' : '#ff0000';
     }
 
     document.getElementById('alice-secret').addEventListener('input', update);

@@ -51,7 +51,7 @@
     
     .frame-i { background: var(--text); color: var(--bg); }
     .frame-p { background: var(--accent); color: var(--bg); }
-    .frame-b { background: transparent; border: 1px solid var(--text); color: var(--text); }
+    .frame-b { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
     
     /* GOP visualization */
     .gop-container {
@@ -88,7 +88,7 @@
     
     .gop-frame.i-frame .frame-size { background: var(--text); color: var(--bg); }
     .gop-frame.p-frame .frame-size { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .gop-frame.b-frame .frame-size { background: transparent; }
+    .gop-frame.b-frame .frame-size { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
     
     .gop-arrow {
       color: var(--muted);
@@ -218,6 +218,10 @@
     .ref-arrow {
       color: var(--accent);
     }
+
+    canvas {
+      border: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
@@ -230,7 +234,6 @@
         <a href="../tags.html">tags</a>
         <a href="https://github.com/onoht">github</a>
       </nav>
-      <button class="theme-toggle">◐</button>
     </div>
   </header>
 
@@ -552,7 +555,6 @@
     </div>
   </footer>
 
-  <script src="../theme-toggle.js"></script>
   <script>
     // === BITRATE DEMO ===
     const originalCanvas = document.getElementById('originalCanvas');
@@ -709,16 +711,17 @@
     ];
     
     function drawMotionFrame() {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      const bgColor = isDark ? '#000000' : '#ffffff';
-      const textColor = isDark ? '#ffffff' : '#000000';
-      
+      // Dark-only colors
+      const bgColor = '#000000';
+      const textColor = '#ffffff';
+      const accentColor = '#00ffff';
+
       // Clear
       motionCtx.fillStyle = bgColor;
       motionCtx.fillRect(0, 0, MW, MH);
-      
+
       // Draw grid
-      motionCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+      motionCtx.strokeStyle = '#111111';
       motionCtx.lineWidth = 0.5;
       for (let x = 0; x < MW; x += MBLOCK) {
         motionCtx.beginPath();
@@ -740,8 +743,8 @@
       });
       
       // Draw motion vectors
-      motionCtx.strokeStyle = textColor;
-      motionCtx.fillStyle = textColor;
+      motionCtx.strokeStyle = accentColor;
+      motionCtx.fillStyle = accentColor;
       motionCtx.lineWidth = 1.5;
       
       for (let by = 0; by < MH; by += MBLOCK) {
@@ -788,7 +791,7 @@
       
       // Frame counter
       motionCtx.fillStyle = textColor;
-      motionCtx.font = '10px JetBrains Mono, monospace';
+      motionCtx.font = '10px "Fira Code", "JetBrains Mono", monospace';
       motionCtx.fillText(`Frame ${frame}`, 10, MH - 10);
     }
     
@@ -841,11 +844,6 @@
     // Initial draw
     drawMotionFrame();
     
-    // Redraw on theme change
-    const observer = new MutationObserver(() => {
-      drawMotionFrame();
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   </script>
 </body>
 </html>
