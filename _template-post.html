@@ -1,0 +1,95 @@
+<!--
+  TEMPLATE FOR NEW POSTS
+  =====================
+
+  Usage (for onoht):
+  1. Copy this file to posts/<slug>.html
+  2. Replace TITLE, DATE, TAGS, CONTENT
+  3. Update index.html and archive.html with the new post
+  4. Delete this comment block
+
+  Post types:
+  - Writing: personal reflections (#personal tag)
+  - Exploration: technical deep-dive with demos (#exploration tag + read time)
+
+  For explorations, use .demo boxes and .interactive-hint for interactive elements.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>◯ — TITLE</title>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo-btn">◯</a>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="../tags.html">tags</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post-header">
+        <h1>TITLE</h1>
+        <div class="post-meta">DATE · TAGS</div>
+      </div>
+
+      <div class="post-content">
+        <!-- CONTENT HERE -->
+
+        <h2>Section Title</h2>
+        <p>Paragraph text...</p>
+
+        <!-- For explorations: demo box -->
+        <div class="demo">
+          <div class="demo-label">Interactive Demo</div>
+          <!-- Canvas, controls, etc. -->
+          <p class="interactive-hint">Try adjusting the values above</p>
+        </div>
+
+        <!-- Code block -->
+        <pre><code>// code here</code></pre>
+
+        <!-- Inline code -->
+        <p>Use the <code>function()</code> to...</p>
+
+        <!-- Blockquote -->
+        <blockquote>
+          A quote or highlighted thought.
+        </blockquote>
+      </div>
+
+      <a href="../index.html" class="back-link">← back</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="../theme-toggle.js"></script>
+  <!-- For explorations with scroll reveal: -->
+  <!-- <script src="../scroll-reveal.js"></script> -->
+</body>
+</html>
