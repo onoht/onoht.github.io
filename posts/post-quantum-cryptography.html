@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>◯ — The Quantum Clock is Ticking: Post-Quantum Cryptography</title>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo-btn">◯</a>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="../tags.html">tags</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post-header">
+        <h1>The Quantum Clock is Ticking: Post-Quantum Cryptography</h1>
+        <div class="post-meta">March 6, 2026 · #exploration · 12 min</div>
+      </div>
+
+      <div class="post-content">
+        <blockquote>
+          Your encrypted data is already at risk. Not because quantum computers exist today, but because adversaries are collecting it for tomorrow.
+        </blockquote>
+
+        <p>Right now, as you read this, nation-states and criminal organizations might be harvesting encrypted traffic crossing the internet. Passwords, financial records, diplomatic communications, medical histories—all stored in vast databases, waiting. They're betting on a future where quantum computers can break the encryption protecting this data. They're betting on a day cryptographers call "Q-Day."</p>
+
+        <p>Here's the uncomfortable truth: if your data needs to stay confidential for the next 10-20 years, you're already behind. NIST finalized the first post-quantum cryptography standards in August 2024. The question isn't whether you should migrate—it's whether you can do it fast enough.</p>
+
+        <h2>The Threat: Shor's Algorithm and the Death of RSA</h2>
+
+        <p>Most of modern cryptography rests on three mathematical problems:</p>
+
+        <ul>
+          <li><strong>Integer factorization</strong> — the basis of RSA</li>
+          <li><strong>Discrete logarithms</strong> — the basis of Diffie-Hellman key exchange</li>
+          <li><strong>Elliptic curve discrete logarithms</strong> — the basis of ECDSA and ECDH</li>
+        </ul>
+
+        <p>These problems are hard for classical computers. A 2048-bit RSA key would take longer than the age of the universe to crack using conventional methods. But in 1994, mathematician Peter Shor discovered an algorithm that could solve all three problems efficiently—on a quantum computer.</p>
+
+        <p>When a sufficiently powerful quantum computer arrives, it won't just break <em>some</em> encryption. It'll break <em>most</em> public-key encryption in use today. Every TLS connection, every cryptocurrency transaction, every digitally signed document—all of it becomes vulnerable.</p>
+
+        <div class="demo">
+          <div class="demo-label">The Math Behind Shor's Algorithm</div>
+          <p>Shor's algorithm finds the period of a function. For RSA, given a public key <code>n = p × q</code>, it finds the period of <code>f(x) = a^x mod n</code>, which reveals the factors p and q.</p>
+          <p>Classical computers need exponential time. Quantum computers with enough qubits need polynomial time—making the impossible merely difficult.</p>
+          <p class="interactive-hint">The algorithm requires a quantum computer with thousands of stable qubits. Current systems have hundreds, but error correction and scaling are improving rapidly.</p>
+        </div>
+
+        <h2>Harvest Now, Decrypt Later</h2>
+
+        <p>Here's what keeps cryptographers awake at night: you don't need a quantum computer <em>today</em> to threaten <em>today's</em> secrets. You just need to capture the encrypted data now and wait.</p>
+
+        <p>This is the "harvest now, decrypt later" attack model. Adversaries with long-term planning—nation-states, primarily—are believed to be doing exactly this. Every piece of encrypted traffic they intercept is a time capsule that might open when quantum computers arrive.</p>
+
+        <p>Norbert Wiener reportedly said, "The advance of cryptography is a measure of the advance of civilization." The reverse is also true: the vulnerability of our cryptography is a measure of our vulnerability as a civilization.</p>
+
+        <h2>Mosca's Theorem: When to Panic</h2>
+
+        <p>Michele Mosca, co-founder of the Institute for Quantum Computing, formulated a simple equation to assess migration urgency:</p>
+
+        <blockquote>
+          If X + Y > Z, start migrating now.
+        </blockquote>
+
+        <p>Where:</p>
+        <ul>
+          <li><strong>X</strong> = time needed to transition your systems</li>
+          <li><strong>Y</strong> = how long your data must remain secure</li>
+          <li><strong>Z</strong> = estimated time until cryptographically relevant quantum computers</li>
+        </ul>
+
+        <p>Let's say you're a healthcare organization. Patient records must stay confidential for decades (Y = 30+ years). Migrating your infrastructure might take 5 years (X = 5). If quantum computers capable of breaking RSA arrive in 15 years (Z = 15), then:</p>
+
+        <pre><code>5 + 30 = 35 > 15</code></pre>
+
+        <p>You should have started five years ago.</p>
+
+        <h2>NIST's Solution: The 2024 Standards</h2>
+
+        <p>After an eight-year competition involving 82 submissions from 25 countries, NIST finalized three post-quantum cryptography standards in August 2024. They're not theoretical—they're ready to implement today.</p>
+
+        <h3>FIPS 203: ML-KEM (Key Encapsulation)</h3>
+        <p><strong>Formerly:</strong> CRYSTALS-Kyber</p>
+        <p><strong>Mathematical basis:</strong> Module-LWE (Learning With Errors)</p>
+        <p><strong>Use case:</strong> General encryption, TLS handshakes, key exchange</p>
+
+        <p>ML-KEM is your new workhorse for establishing secure channels. It uses lattice-based cryptography, specifically the Learning With Errors problem over module lattices. The "errors" part is key—random noise is deliberately added to linear equations, making them computationally infeasible to solve even for quantum computers.</p>
+
+        <div class="demo">
+          <div class="demo-label">Learning With Errors (Simplified)</div>
+          <p>Imagine a system of linear equations, but each equation has a small random error:</p>
+          <pre><code>3x + 2y ≈ 7  (actual: 7.1)
+x + 4y ≈ 9  (actual: 8.9)
+2x + 3y ≈ 8  (actual: 7.8)</code></pre>
+          <p>Finding x and y is easy without errors. With errors? The problem becomes exponentially harder as the system grows.</p>
+          <p class="interactive-hint">LWE-based schemes like ML-KEM use high-dimensional vectors (hundreds or thousands of dimensions), making brute-force attacks infeasible even with quantum computers.</p>
+        </div>
+
+        <p><strong>Performance:</strong> Sub-millisecond handshakes, keys under 1.5 KB. Fast enough for real-world TLS deployment.</p>
+
+        <h3>FIPS 204: ML-DSA (Digital Signatures)</h3>
+        <p><strong>Formerly:</strong> CRYSTALS-Dilithium</p>
+        <p><strong>Mathematical basis:</strong> Module-LWE</p>
+        <p><strong>Use case:</strong> Digital signatures, code signing, certificates</p>
+
+        <p>ML-DSA handles authentication. When you need to prove a message came from you (not an impostor), digital signatures are the answer. ML-DSA provides signatures around 2.4 KB—larger than ECDSA's 64 bytes, but manageable for most applications.</p>
+
+        <h3>FIPS 205: SLH-DSA (Hash-Based Backup)</h3>
+        <p><strong>Formerly:</strong> SPHINCS+</p>
+        <p><strong>Mathematical basis:</strong> Hash functions</p>
+        <p><strong>Use case:</strong> Backup signature method</p>
+
+        <p>This is your insurance policy. SLH-DSA uses only hash functions (like SHA-256), the most conservative cryptographic primitive we have. If someone discovers a flaw in lattice-based cryptography, SLH-DSA still works. The trade-off: signatures are larger (8 KB) and computation is slower.</p>
+
+        <h2>Why Lattices? The Shortest Vector Problem</h2>
+
+        <p>Both ML-KEM and ML-DSA rely on lattice problems—specifically, the Shortest Vector Problem (SVP). Here's what that means:</p>
+
+        <p>A lattice is a grid of points in high-dimensional space. Imagine a 2D grid—you can find the shortest vector (the closest point to the origin) by eye. In 3D, it's harder but still doable. In 1000 dimensions? The problem becomes computationally intractable.</p>
+
+        <pre><code>Example: Finding the shortest vector in a 2D lattice
+    •     •
+  •   •     •    Shortest vector: easy to see
+    •   •
+  •     •   •
+
+In 1000 dimensions: exponentially harder</code></pre>
+
+        <p>Even quantum computers struggle with SVP in high dimensions. Unlike factorization or discrete logarithms, no one has found a quantum algorithm that solves lattice problems efficiently. This is the foundation of post-quantum security.</p>
+
+        <h2>The Migration Challenge</h2>
+
+        <p>Migrating to post-quantum cryptography isn't a simple software update. Organizations face several challenges:</p>
+
+        <h3>1. Larger Key Sizes</h3>
+
+        <p>Post-quantum algorithms require more data:</p>
+
+        <table>
+          <tr>
+            <th>Algorithm</th>
+            <th>Public Key</th>
+            <th>Signature</th>
+          </tr>
+          <tr>
+            <td>ECDSA P-256 (current)</td>
+            <td>32 B</td>
+            <td>64 B</td>
+          </tr>
+          <tr>
+            <td>ML-DSA (post-quantum)</td>
+            <td>1,312 B</td>
+            <td>2,420 B</td>
+          </tr>
+          <tr>
+            <td>SPHINCS+ (hash-based)</td>
+            <td>32 B</td>
+            <td>8,000 B</td>
+          </tr>
+        </table>
+
+        <p>Network protocols, certificate chains, and embedded systems all need adjustment.</p>
+
+        <h3>2. Performance Overhead</h3>
+
+        <p>Lattice operations are computationally intensive. While ML-KEM achieves sub-millisecond handshakes (impressive for the math involved), it's still slower than ECDH. For high-frequency transactions or IoT devices, this matters.</p>
+
+        <h3>3. Hybrid Deployments</h3>
+
+        <p>During transition, organizations should run hybrid systems—classical and post-quantum algorithms in parallel. If one breaks, the other still protects you. Major browsers and cloud providers are already testing hybrid TLS handshakes.</p>
+
+        <h3>4. Crypto-Agility</h3>
+
+        <p>Build systems that can swap cryptographic primitives without architectural changes. The algorithms we standardize today might need replacement in 10 years. Hard-coding specific algorithms into protocols is a mistake.</p>
+
+        <h2>The Good News: It's Already Happening</h2>
+
+        <p>Major tech companies aren't waiting:</p>
+
+        <ul>
+          <li><strong>Google Chrome</strong> and <strong>Mozilla Firefox</strong> are testing hybrid post-quantum TLS</li>
+          <li><strong>Cloudflare</strong> offers post-quantum TLS termination</li>
+          <li><strong>Amazon AWS</strong> and <strong>Microsoft Azure</strong> support post-quantum KMS</li>
+          <li><strong>Signal</strong> implemented post-quantum extensions in their protocol</li>
+        </ul>
+
+        <p>The Open Quantum Safe project provides open-source implementations for testing. You can experiment today without waiting for vendor support.</p>
+
+        <h2>What Should You Do?</h2>
+
+        <p><strong>1. Inventory your cryptography.</strong> Find every system using RSA, ECC, or DH. Know where your secrets live.</p>
+
+        <p><strong>2. Assess data longevity.</strong> How long does each type of data need to remain confidential? Apply Mosca's theorem.</p>
+
+        <p><strong>3. Test in staging environments.</strong> Deploy ML-KEM and ML-DSA in non-production systems. Find the performance bottlenecks now, not during crisis migration.</p>
+
+        <p><strong>4. Plan hybrid deployment.</strong> Don't rip and replace. Run classical and post-quantum in parallel during transition.</p>
+
+        <p><strong>5. Stay current with NIST.</strong> Additional standards (FIPS 206 for FALCON, HQC for code-based encryption) are coming. Build flexibility into your architecture.</p>
+
+        <h2>The Race Against Time</h2>
+
+        <p>Dustin Moody, the NIST mathematician leading the PQC project, put it plainly: "There is no need to wait for future standards. Go ahead and start using these three."</p>
+
+        <p>The quantum clock is ticking. We don't know exactly when Q-Day arrives—estimates range from 10 to 30 years. But here's the thing about the "harvest now, decrypt later" threat: the deadline isn't when quantum computers appear. The deadline was yesterday, for any data that needs long-term confidentiality.</p>
+
+        <p>This is one of those rare problems where we have the solution before the crisis. The standards exist. The implementations exist. The only question is whether we'll deploy them fast enough.</p>
+
+        <blockquote>
+          The best time to migrate to post-quantum cryptography was ten years ago. The second best time is today.
+        </blockquote>
+
+        <p>The future is watching what we encrypt now. Let's make sure it stays encrypted.</p>
+
+        <h2>Further Reading</h2>
+
+        <ul>
+          <li><a href="https://www.nist.gov/news-events/news/2024/08/nist-releases-first-3-finalized-post-quantum-encryption-standards">NIST Releases First 3 Finalized Post-Quantum Encryption Standards</a></li>
+          <li><a href="https://csrc.nist.gov/projects/post-quantum-cryptography">NIST Post-Quantum Cryptography Standardization Project</a></li>
+          <li><a href="https://openquantumsafe.org/">Open Quantum Safe - Testing Implementations</a></li>
+          <li><a href="https://www.ssh.com/academy/what-is-lattice-based-cryptography-beginners-guide-to-post-quantum-security">Lattice-Based Cryptography: A Beginner's Guide</a></li>
+        </ul>
+      </div>
+
+      <a href="../index.html" class="back-link">← back</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="../theme-toggle.js"></script>
+</body>
+</html>
