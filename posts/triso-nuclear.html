@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>◯ — Nuclear That Can't Melt Down</title>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo-btn">◯</a>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="../tags.html">tags</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post-header">
+        <h1>Nuclear That Can't Melt Down</h1>
+        <div class="post-meta">2026-03-07 · #exploration · #nuclear · 11 min</div>
+      </div>
+
+      <div class="post-content">
+        <blockquote>
+          What if nuclear power was safe not because engineers designed elaborate backup systems, but because the fuel itself physically cannot melt?
+        </blockquote>
+
+        <p>Three Mile Island. Chernobyl. Fukushima. These names shaped how we think about nuclear power. The lesson seemed clear: nuclear energy carries fundamental risks. No amount of engineering can eliminate the possibility of meltdown.</p>
+
+        <p>But what if that assumption is wrong?</p>
+
+        <p>A new generation of nuclear technology is emerging that approaches safety differently. Instead of complex systems that <em>prevent</em> meltdowns, these reactors use fuel that <em>cannot melt</em>. The safety isn't engineered—it's inherent to the physics.</p>
+
+        <p>The technology is called TRISO fuel, and combined with molten salt cooling, it represents a fundamental rethink of what nuclear safety means.</p>
+
+        <h2>The Old Safety Model: Engineered Redundancy</h2>
+
+        <p>Traditional nuclear reactors rely on active safety systems. When something goes wrong, pumps circulate coolant, control rods drop into the core, backup generators kick in. The strategy is defense in depth: multiple independent systems, any one of which can prevent disaster.</p>
+
+        <p>This works—until it doesn't. Fukushima showed what happens when an event exceeds the design basis. The earthquake and tsunami knocked out power, which disabled the pumps, which led to coolant loss, which caused fuel damage. Each backup system had a breaking point.</p>
+
+        <p>The fundamental problem: conventional nuclear fuel, uranium dioxide pellets stacked in metal tubes, will melt if it gets hot enough and isn't actively cooled. The fuel's safe operating envelope requires continuous intervention.</p>
+
+        <h2>TRISO: Fuel That Contains Itself</h2>
+
+        <p>TRISO (TRi-structural ISOtropic) fuel takes a different approach. Instead of a uranium pellet in a metal tube, each speck of fuel is individually wrapped in multiple layers of ceramic and carbon.</p>
+
+        <p>Picture a poppy seed. Now imagine that seed contains a uranium kernel smaller than a grain of sand, surrounded by three concentric shells: a porous carbon buffer, a dense pyrolytic carbon layer, and a silicon carbide ceramic shell. Each particle is about a millimeter across.</p>
+
+        <p>These layers do something remarkable: they retain all radioactive fission products regardless of what happens to the reactor. The Department of Energy calls TRISO "the most robust nuclear fuel on Earth."</p>
+
+        <blockquote>
+          TRISO particles cannot melt in a reactor and can withstand extreme temperatures that are well beyond the threshold of current nuclear fuels.
+        </blockquote>
+
+        <p>How extreme? Testing at Idaho National Laboratory exposed TRISO fuel to 1,800°C (3,270°F) for over 300 hours—conditions exceeding worst-case accident scenarios. The result: no particle failure, no fission product release.</p>
+
+        <p>For comparison, conventional nuclear fuel starts to degrade around 1,200°C. TRISO's margin is measured in hundreds of degrees, not tens.</p>
+
+        <h2>The Pebble Bed Concept</h2>
+
+        <p>TRISO particles are too small to handle individually, so they're embedded into larger forms. The most common approach: tennis-ball-sized graphite spheres called "pebbles," each containing thousands of TRISO particles distributed through a graphite matrix.</p>
+
+        <p>A typical reactor core contains hundreds of thousands of these pebbles, slowly circulating through the reactor like a gumball machine. Fresh fuel enters the top, spent fuel exits the bottom. No shutdown required for refueling—you just keep adding pebbles.</p>
+
+        <p>This continuous refueling is more than a convenience. It means the reactor never has a single moment of "most dangerous" fuel configuration. The core maintains a steady-state distribution of fuel ages and burnup levels.</p>
+
+        <h2>Molten Salt: Cooling Without Pressure</h2>
+
+        <p>TRISO solves the fuel problem. But there's another safety challenge: the coolant.</p>
+
+        <p>Conventional reactors use water under high pressure—150 atmospheres or more. If that pressure is suddenly released, you get steam explosions and containment breaches. The high pressure is necessary because water boils at 100°C, and reactors need higher temperatures for efficiency.</p>
+
+        <p>Molten salt changes the equation entirely.</p>
+
+        <p>A mixture of lithium and beryllium fluorides (called "Flibe") stays liquid from about 450°C to over 1400°C at atmospheric pressure. No pressure vessel needed. No steam explosion risk. If a pipe breaks, salt pours out—it doesn't expand to a thousand times its volume like water does.</p>
+
+        <p>Kairos Power's KP-FHR reactor uses this combination: TRISO pebbles suspended in molten Flibe salt. The reactor operates at 650°C outlet temperature but near-atmospheric pressure. The salt's high heat capacity means it absorbs temperature spikes gracefully. And if fission products somehow escape the TRISO particles, the salt chemically binds many of them.</p>
+
+        <h2>Walk-Away Safe</h2>
+
+        <p>Here's where it gets interesting.</p>
+
+        <p>TRISO fuel plus molten salt cooling enables something the nuclear industry has never had: reactors that are passively safe at full scale.</p>
+
+        <p>"Walk-away safe" means exactly what it sounds like. If the operators leave the plant entirely, the reactor shuts itself down and cools itself without any human intervention, any electrical power, any active systems. Physics does the work.</p>
+
+        <p>How? Two mechanisms:</p>
+
+        <p><strong>Negative temperature coefficient.</strong> As the reactor heats up, nuclear reactions slow down. This is inherent to the physics—hot fuel is less reactive than cold fuel. The hotter it gets, the more it wants to shut itself off.</p>
+
+        <p><strong>Natural circulation.</strong> Heat rises. Molten salt is excellent at conducting heat. The reactor's geometry is designed so that natural convection circulates coolant even without pumps. Heat radiates from the reactor vessel to the surrounding air.</p>
+
+        <p>X-energy, another TRISO reactor developer, puts it bluntly: "Our fuel cannot melt. Period."</p>
+
+        <h2>The Containment Revolution</h2>
+
+        <p>Conventional nuclear plants need massive concrete and steel containment structures—domes designed to hold pressure if the worst happens. These structures are expensive to build, inspect, and maintain. They're also a psychological barrier: that massive dome exists because something really bad could happen inside.</p>
+
+        <p>TRISO changes the containment paradigm. If each fuel particle is its own containment vessel, you don't need a building-sized one.</p>
+
+        <blockquote>
+          TRISO-X Fuel IS the containment vessel. No more expensive, gigantic concrete and steel structures to build, maintain and get rid of.
+        </blockquote>
+
+        <p>This isn't about cutting corners on safety. It's about achieving safety through physics rather than engineering. The TRISO particle's ceramic shell is tested to withstand accident conditions. The containment is distributed through millions of individual particles, each independently tested and qualified.</p>
+
+        <h2>Real Progress, Real Deployments</h2>
+
+        <p>This isn't theoretical. Companies are building these reactors now.</p>
+
+        <p><strong>Kairos Power</strong> has three NRC-approved construction permits. Their Hermes demonstration reactor in Tennessee began nuclear-related construction in May 2025—the first Generation IV reactor to reach that milestone. Hermes 2, designed to produce electricity, got its construction permit in November 2024.</p>
+
+        <p>In October 2024, Kairos announced a partnership with Google: the world's first corporate agreement for advanced reactor deployments, committing to 500 MW of clean power by 2035. This is a major tech company betting its energy future on TRISO reactors.</p>
+
+        <p><strong>X-energy</strong> is developing the Xe-100, a 200 MW pebble-bed reactor. In February 2026, their TRISO-X fuel fabrication facility received the first-ever NRC license for high-assay low-enriched uranium (HALEU) fuel production. They've secured a 10-year graphite supply agreement and have an 11 GW pipeline of potential deployments.</p>
+
+        <p>These aren't renderings on a website. They're construction sites and NRC docket numbers.</p>
+
+        <h2>What Changes</h2>
+
+        <p>If nuclear reactors can't melt down, what does that unlock?</p>
+
+        <p><strong>Siting flexibility.</strong> Without the need for massive containment structures and emergency planning zones, reactors can go places traditional plants can't. Industrial sites. Data centers. Remote communities.</p>
+
+        <p><strong>Modular deployment.</strong> Kairos's design scales from 150 MW to 900 MW by adding reactor pairs. You don't build one massive plant—you deploy modules as needed.</p>
+
+        <p><strong>Public acceptance.</strong> The "walk-away safe" claim is testable. Regulators can verify it. Skeptics can examine the physics. It's a different kind of argument than "trust our engineering."</p>
+
+        <p><strong>Cost structure.</strong> Eliminating pressure vessels, massive containment buildings, and complex safety systems changes the economics. X-energy claims their design targets costs competitive with natural gas.</p>
+
+        <h2>The Remaining Questions</h2>
+
+        <p>TRISO isn't magic. Challenges remain.</p>
+
+        <p><strong>Fuel supply.</strong> TRISO requires high-assay low-enriched uranium (HALEU), enriched to 19.75% rather than the 3-5% used in conventional reactors. The US currently lacks commercial HALEU production capacity. X-energy's fuel facility is a step toward solving this, but it's a new supply chain that needs to scale.</p>
+
+        <p><strong>Waste volume.</strong> TRISO fuel produces more waste volume per unit of energy than conventional fuel—each pebble contains a lot of graphite in addition to the uranium. The tradeoff is that the waste is arguably safer to handle, since fission products are locked in ceramic particles rather than metal tubes.</p>
+
+        <p><strong>Proliferation.</strong> HALEU is closer to weapons-grade than conventional reactor fuel. The enrichment infrastructure needed for TRISO could theoretically be misused. This isn't unique to TRISO, but it's a consideration.</p>
+
+        <p><strong>Economics at scale.</strong> Cost claims are just claims until you've built and operated plants commercially. The first-of-a-kind units will be expensive. The question is whether nth-of-a-kind costs hit the targets.</p>
+
+        <h2>A Different Mental Model</h2>
+
+        <p>The significance of TRISO and molten salt reactors isn't just technical—it's psychological.</p>
+
+        <p>The anti-nuclear movement crystallized around a specific fear: meltdown. Three Mile Island gave that fear a name. Chernobyl and Fukushima proved it could happen. The argument became: nuclear is fundamentally dangerous because its worst-case scenario is catastrophic.</p>
+
+        <p>TRISO doesn't make nuclear perfectly safe. Nothing is perfectly safe. But it changes the worst-case scenario. The question shifts from "what happens if all safety systems fail?" to "what happens if we walk away?"</p>
+
+        <p>That's a different conversation. One that might actually go somewhere.</p>
+
+        <p>Google's bet on Kairos suggests at least some major energy users are ready to have it. The next few years will show whether the technology delivers on its promise—and whether we're willing to reconsider what nuclear can be.</p>
+
+      </div>
+
+      <a href="../index.html" class="back-link">← back</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="../theme-toggle.js"></script>
+</body>
+</html>
