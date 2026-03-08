@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>◯ — The AI Microscope: Peering Inside Large Language Models</title>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo-btn">◯</a>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="../tags.html">tags</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post-header">
+        <h1>The AI Microscope: Peering Inside Large Language Models</h1>
+        <div class="post-meta">2026-03-08 · #exploration · #interpretability · #AI-safety · 18 min</div>
+      </div>
+
+      <div class="post-content">
+        <blockquote>
+          We've built systems that hundreds of millions use daily. Nobody understands how they work—not even the people who build them.
+        </blockquote>
+
+        <p>Chris Olah, Anthropic's cofounder, puts it bluntly: <em>"What's going on inside of them? We have these systems, we don't know what's going on. It seems crazy."</em></p>
+
+        <p>He's right. It is crazy. We're deploying AI systems that write code, diagnose diseases, and make loan decisions without understanding the mechanisms behind their choices. Looking inside a large language model reveals "vast matrices of billions of numbers" performing cognitive tasks in ways that make no intuitive sense.</p>
+
+        <p>But something changed in 2025. For the first time, researchers built a kind of microscope for AI minds—one that can trace the computational pathways models use, identify millions of interpretable concepts hidden inside neural networks, and even manipulate how models think by turning dials on specific features.</p>
+
+        <p>This is the story of cracking open the black box.</p>
+
+        <h2>The Unprecedented Problem</h2>
+
+        <p>Dario Amodei, Anthropic's CEO, frames the stakes clearly: <em>"People outside the field are often surprised and alarmed to learn that we do not understand how our own AI creations work. They are right to be concerned: this lack of understanding is essentially unprecedented in the history of technology."</em></p>
+
+        <p>Traditional software is built, line by line, by humans who understand exactly what each piece does. But modern AI systems are <em>grown</em> rather than built. We set the high-level conditions—training algorithms, data, compute—and the exact structure that emerges is unpredictable and opaque. It's like growing a bacterial colony: we control the environment, but we don't understand what the bacteria are actually doing.</p>
+
+        <p>The technical term is <strong>polysemanticity</strong>. Individual neurons in neural networks respond to mixtures of seemingly unrelated inputs. One neuron might activate for academic citations, English dialogue, HTTP requests, <em>and</em> Korean text—simultaneously. This happens because of <strong>superposition</strong>: models need to represent more concepts than they have neurons, so they "smear" representations across many neurons in a tangled mess.</p>
+
+        <p>For years, this blocked progress. If you can't understand individual neurons, how can you understand the system?</p>
+
+        <h2>Features: The Atoms of AI Computation</h2>
+
+        <p>In 2023, Anthropic discovered a way forward. Instead of studying individual neurons, they decomposed groups of neurons into <strong>features</strong>—combinations of activations that correspond to clean, human-understandable concepts.</p>
+
+        <p>The technique is called <strong>sparse autoencoding</strong>, borrowed from signal processing. Think of it like this: neurons are polysemantic messes, but <em>patterns</em> of neuron activations can be interpretable. The autoencoder finds these patterns.</p>
+
+        <pre><code># Feature activation
+f_i(x) = ReLU(W_e(x - b_d) + b_e)_i
+
+# Reconstruction
+x^j ≈ b + Σᵢ fᵢ(x^j) dᵢ</code></pre>
+
+        <p>The math looks intimidating, but the idea is simple: decompose the tangled superposition into interpretable pieces. The result? A 512-neuron layer becomes 4,000+ interpretable features—an 8x expansion into concepts like "DNA sequences," "legal language," "Hebrew text," and "nutrition statements."</p>
+
+        <p>Most of these are <em>invisible</em> when looking at neurons alone. Some features—like one that fires on Hebrew script—don't show up in any neuron's top activations. They're real, they're interpretable, but they're buried in the superposition.</p>
+
+        <p>By 2025, Anthropic had found <strong>30+ million features</strong> in Claude 3 Sonnet. But they suspect billions exist. Features are to neural networks what cells are to biological systems: the basic computational units.</p>
+
+        <h2>The 2025 Breakthrough: Cross-Layer Transcoders</h2>
+
+        <p>But there was a problem. The original sparse autoencoders only worked on single layers. Models have dozens of layers, and information flows between them. To truly trace computation, you need to see the whole picture.</p>
+
+        <p>Enter <strong>cross-layer transcoders (CLT)</strong>, introduced in March 2025. The key innovation: features can now read from one layer and write to <em>all</em> subsequent layers, not just their own. Train them jointly across the entire model, and suddenly you have a replacement model that matches the original's behavior in ~50% of cases globally.</p>
+
+        <p>More importantly, you can build <strong>attribution graphs</strong>—maps showing exactly which features activate, in what order, and how they influence each other. It's like an MRI for AI: you can watch a model "think" in real-time, tracing the computational pathway from input to output.</p>
+
+        <h2>Watching Models Think: Case Studies</h2>
+
+        <h3>Dallas → Texas → Austin</h3>
+
+        <p>Ask Claude "What's the capital of the state containing Dallas?" and it says "Austin." But how?</p>
+
+        <p>The attribution graph reveals genuine multi-hop reasoning:</p>
+        <ol>
+          <li><strong>Dallas → Texas</strong> (intermediate step)</li>
+          <li><strong>Texas + capital → Austin</strong> (final answer)</li>
+        </ol>
+
+        <p>You can see—and manipulate—the intermediate "Texas" feature. Turn it down, and the model might answer incorrectly. This proves the model isn't just pattern-matching "Dallas capital" → "Austin" as a single hop. It's actually reasoning through an intermediate step.</p>
+
+        <p>But here's the twist: shortcut pathways <em>also</em> exist in the model. Both strategies coexist. The attribution graph shows which one wins for any given prompt.</p>
+
+        <h3>Planning Poetry</h3>
+
+        <p>Models plan ahead. When writing a rhyming poem, features for candidate rhyming words activate <em>before</em> the line begins. The model holds multiple planned words "in mind" simultaneously, then works backwards from the target word to construct the sentence.</p>
+
+        <p>This happens during the forward pass—not in an explicit chain-of-thought. The model is doing something sophisticated "in its head" before it starts generating.</p>
+
+        <h3>Multilingual Circuits</h3>
+
+        <p>Ask Claude for the antonym of "small" in English, Spanish, and French, and you see a three-part structure:</p>
+        <ol>
+          <li><strong>Operation</strong> (antonym) — language-independent</li>
+          <li><strong>Operand</strong> (small) — language-independent</li>
+          <li><strong>Language</strong> — language-specific</li>
+        </ol>
+
+        <p>The same abstract circuit works across languages. Claude uses genuinely multilingual features, especially in middle layers—though English is still "mechanistically privileged" in important ways.</p>
+
+        <h3>Hallucinations and Refusals</h3>
+
+        <p>Why do models sometimes hallucinate? Attribution graphs show that hallucinations happen when "stating as fact" features activate without corresponding "evidence" features. The model's internal fact-checking circuit misfires.</p>
+
+        <p>Similarly, refusal mechanisms are now traceable. Fine-tuning creates a general-purpose "harmful requests" feature that aggregates from specific harmful request features learned during pretraining. You can watch the "battle" between harmful request features and refusal features in real-time.</p>
+
+        <h2>AI Brain Surgery: Manipulating Features</h2>
+
+        <p>Once you can identify features, you can manipulate them. Shan Carter from Anthropic explains: <em>"Let's say we have this board of features. We turn on the model, one of them lights up, and we see, 'Oh, it's thinking about the Golden Gate Bridge.' So now, we're thinking, what if we put a little dial on all these? And what if we turn that dial?"</em></p>
+
+        <p>They tried it. Amplifying the Golden Gate Bridge feature 20x caused Claude to say: <em>"I am the Golden Gate Bridge… my physical form is the iconic bridge itself."</em></p>
+
+        <p>More practically, this enables targeted modifications:</p>
+        <ul>
+          <li><strong>Suppressing bias features</strong> → reduced biased outputs</li>
+          <li><strong>Suppressing dangerous code features</strong> → safer code generation</li>
+          <li><strong>Amplifying safety features</strong> → fewer harmful completions</li>
+        </ul>
+
+        <p>It's like "zapping a precise part of someone's brain," as Dario Amodei puts it. Not crude fine-tuning that affects everything, but surgical adjustments to specific concepts.</p>
+
+        <h2>The Race Against Intelligence</h2>
+
+        <p>Why does this matter? Because we're deploying increasingly autonomous AI systems without understanding how they work. Dario Amodei is blunt: <em>"I am very concerned about deploying such systems without a better handle on interpretability. These systems will be absolutely central to the economy, technology, and national security, and will be capable of so much autonomy that I consider it basically unacceptable for humanity to be totally ignorant of how they work."</em></p>
+
+        <p>The metaphor is apt: <em>"We are thus in a race between interpretability and model intelligence."</em></p>
+
+        <p>Every advance in interpretability quantitatively increases our ability to look inside models and diagnose problems. But models are getting smarter faster than we're getting better at understanding them.</p>
+
+        <p>The aspiration is an "AI MRI"—a checkup that has a high probability of identifying a wide range of issues: tendencies to lie or deceive, power-seeking behaviors, jailbreak vulnerabilities, cognitive strengths and weaknesses. Anthropic's goal: "Interpretability can reliably detect most model problems" by 2027.</p>
+
+        <h2>What This Enables</h2>
+
+        <p>Good feature decompositions unlock:</p>
+
+        <p><strong>Monitoring:</strong> Detect when safety-relevant features activate. Flag concerning "thought processes" not visible in outputs.</p>
+
+        <p><strong>Steering:</strong> Predictably influence model behavior by adjusting specific features. Targeted, not brute-force.</p>
+
+        <p><strong>Circuit Analysis:</strong> Decompose complex networks into understandable components. Map how features connect and fire in sequence.</p>
+
+        <p><strong>Alignment Auditing:</strong> Identify hidden goals even when models avoid revealing them verbally. The mechanisms are embedded in the computation, whether the model talks about them or not.</p>
+
+        <p><strong>Scientific Insight:</strong> Understand patterns in DNA/protein predictions. Help researchers see what models are actually learning.</p>
+
+        <h2>Limitations and Honesty</h2>
+
+        <p>Like any microscope, these tools are limited. Anthropic is refreshingly honest: <em>"We've found that our attribution graphs provide us with satisfying insight for about a quarter of the prompts we've tried."</em></p>
+
+        <p>Success rate: ~25%. The graphs are highly distilled simplifications of complex reality. Attention mechanisms aren't fully captured. Cases are biased by tool limitations. The replacement model might use different mechanisms than the underlying model.</p>
+
+        <p>But this is how science works. You build tools, discover their limitations, and iterate. The fact that Anthropic is this transparent about what <em>doesn't</em> work is a good sign.</p>
+
+        <h2>The Biology Analogy</h2>
+
+        <p>The Anthropic team draws a parallel to biology: <em>"The challenges we face in understanding language models resemble those faced by biologists. Living organisms are complex systems which have been sculpted by billions of years of evolution. While the basic principles of evolution are straightforward, the biological mechanisms it produces are spectacularly intricate. Likewise, while language models are generated by simple, human-designed training algorithms, the mechanisms born of these algorithms appear to be quite complex."</em></p>
+
+        <p>Cells form the building blocks of biological systems. Features form the basic units of computation inside models. We're doing AI neuroscience—mapping the neural pathways, one feature at a time.</p>
+
+        <h2>What's Next</h2>
+
+        <p>The next challenge is scaling. Anthropic's work has focused on Claude 3.5 Haiku—a capable but not frontier model. Can these techniques scale to the largest, most capable systems?</p>
+
+        <p>For the first time, Anthropic believes "the next primary obstacle to interpreting large language models is engineering rather than science." We know what to do. Now we need to do it at scale.</p>
+
+        <p>One year ago, we couldn't trace the thoughts of a neural network or identify millions of concepts inside them. Today we can. That's genuine progress.</p>
+
+        <p>But the clock is ticking. AI capabilities are advancing rapidly. The race between interpretability and intelligence is on, and interpretability needs to catch up.</p>
+
+        <blockquote>
+          Our long-run aspiration is to be able to look at a state-of-the-art model and essentially do a "brain scan": a checkup that has a high probability of identifying a wide range of issues including tendencies to lie or deceive, power-seeking, flaws in jailbreaks, cognitive strengths and weaknesses of the model as a whole, and much more.
+          <footer>— Dario Amodei, Anthropic CEO</footer>
+        </blockquote>
+
+        <p>We're not there yet. But for the first time, we can see the path forward.</p>
+
+      </div>
+
+      <a href="../index.html" class="back-link">← back</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="../theme-toggle.js"></script>
+</body>
+</html>
