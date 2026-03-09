@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>◯ — The Mirror Palace: When AI Trains on AI-Generated Data</title>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo-btn">◯</a>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="../tags.html">tags</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post-header">
+        <h1>The Mirror Palace: When AI Trains on AI-Generated Data</h1>
+        <div class="post-meta">2026-03-09 · #exploration · #AI · #synthetic-data · 11 min</div>
+      </div>
+
+      <div class="post-content">
+        <blockquote>
+          A few months ago, I asked an AI bot to summarize a paper. It cited a blog that quoted a newsletter that quoted... another AI. It felt like photocopying a photocopy until the letters blur.
+        </blockquote>
+
+        <p>That's the synthetic data trap in one scene. When models learn from models, truth gets fuzzy at the edges. And the edges are where interesting things live.</p>
+
+        <p>Researchers call it <strong>model collapse</strong>. The name is accurate: a degenerative process where each generation of AI, trained on the previous generation's outputs, slowly forgets what reality looks like. First the tails disappear—the rare cases, the edge conditions, the weird stuff that makes data human. Then the whole distribution collapses into a bland average of itself.</p>
+
+        <p>This isn't speculation. A 2024 Nature paper proved it mathematically. And it has uncomfortable implications for where AI is headed.</p>
+
+        <h2>What Model Collapse Actually Looks Like</h2>
+
+        <p>Imagine training a language model on internet text. The model learns to predict what word comes next, absorbing patterns from millions of human-written sentences. Now imagine the internet slowly fills with AI-generated text. Blog posts, comments, articles, code—more and more of it written by machines.</p>
+
+        <p>The next generation of models scrapes this mixed pool. Some human, some synthetic. The synthetic stuff was already an approximation of human writing—a lossy compression. Now the model learns from that compression, creating an even more compressed version. Each generation loses information.</p>
+
+        <p>The Nature paper breaks down three error sources that compound over time:</p>
+
+        <ul>
+          <li><strong>Statistical approximation error:</strong> With finite samples, some information gets lost at every step. The long tail of rare words and phrases disappears first.</li>
+          <li><strong>Functional expressivity error:</strong> Neural networks can't perfectly represent any distribution. They introduce artifacts—assigning probability where there shouldn't be any.</li>
+          <li><strong>Functional approximation error:</strong> Training itself is imperfect. SGD has biases. Objectives are approximations. These accumulate.</li>
+        </ul>
+
+        <p>Together, they create a ratchet. Information flows one direction: out. You can't recover what got compressed away.</p>
+
+        <h2>The Mathematics of Decay</h2>
+
+        <p>Here's the unsettling part: this isn't just empirical observation. It's provable.</p>
+
+        <p>For a simple discrete distribution with perfect function approximation (no neural network limitations), model collapse still happens. The process is a Markov chain where the only absorbing states—states you can't leave—are delta functions. Single points. All probability mass concentrated on one outcome.</p>
+
+        <p>In other words: given enough generations, your model becomes a broken record. It outputs the same thing forever.</p>
+
+        <p>For continuous distributions, the math is equally grim. The Nature paper proves that for Gaussian approximations, the Wasserstein distance to the true distribution diverges to infinity, while variance collapses to zero. The model simultaneously drifts away from reality and becomes more confident in its wrongness.</p>
+
+        <pre><code>// What collapse looks like in practice
+Generation 0: Human data - rich, diverse, messy
+Generation 1: 10% synthetic - barely noticeable degradation
+Generation 2: 30% synthetic - niche topics start disappearing  
+Generation 3: 60% synthetic - outputs become samey
+Generation 4: 90% synthetic - obvious quality drop
+Generation 5+: Collapse - low variance, high confidence, wrong</code></pre>
+
+        <h2>The "Wait, We're Fine" Objection</h2>
+
+        <p>There's an important caveat: collapse only happens when synthetic data <em>replaces</em> human data. If you accumulate both—keeping the original human text while adding synthetic augmentation—models stay stable.</p>
+
+        <p>This is why OpenAI signed a multi-year deal with News Corp. Why Google licensed Reddit data. Why there's suddenly a gold rush for human-written content. The industry knows something the breathless AI articles don't mention: the original data is the anchor. Without it, you're building on quicksand.</p>
+
+        <p>But here's the problem: we're not accumulating. We're replacing.</p>
+
+        <p>The web isn't a pristine archive of human writing that gets supplemented with AI content. It's a living system where old content gets deleted, sites go offline, and new content floods in. If 50% of new web content is AI-generated (some estimates are higher), then the ratio shifts. Every year, the human fraction shrinks.</p>
+
+        <h2>What Collapse Feels Like</h2>
+
+        <p>You won't see a sudden failure. That's what makes it dangerous. The degradation is gradual:</p>
+
+        <ul>
+          <li><strong>Overconfident wrongness:</strong> Answers sound polished but drift off-fact. The model learned to sound authoritative without the substance to back it up.</li>
+          <li><strong>Loss of diversity:</strong> Outputs regress to the mean. Niche knowledge disappears. Everything starts sounding like everything else.</li>
+          <li><strong>Bias amplification:</strong> Whatever biases leaked into early synthetic sets compound over generations. Small skews become massive distortions.</li>
+          <li><strong>Evaluation rot:</strong> Your benchmarks are probably polluted too. Scores look fine while reality gets worse.</li>
+        </ul>
+
+        <p>The last one is particularly insidious. If your test set contains AI-generated text—which, given how these things propagate, it probably does—then your evaluation is measuring how well the model mimics other AI, not how well it captures human knowledge.</p>
+
+        <h2>The Content Provenance Problem</h2>
+
+        <p>So just label everything, right? Track what's human and what's synthetic. Problem solved.</p>
+
+        <p>Except the web doesn't work that way. robots.txt is voluntary. Different crawlers behave differently. Some sites block AI scrapers; others welcome them after payment. Cloudflare launched one-click AI bot blocking, but enforcement is spotty.</p>
+
+        <p>The Content Credentials initiative (C2PA) is trying to build infrastructure for provenance—cryptographic signing of content origins. It's real progress. But adoption is patchy, and it doesn't solve the retroactive problem: petabytes of already-scraped data with unknown provenance.</p>
+
+        <p>Here's the uncomfortable truth: <strong>you can't reliably tell human from AI anymore.</strong> The detectors don't work well enough. The watermarks can be removed. The stylistic differences blur with each generation.</p>
+
+        <h2>Practical Defenses</h2>
+
+        <p>If you're building AI systems, what do you actually do? The research points to a few concrete strategies:</p>
+
+        <p><strong>1. Track provenance ruthlessly.</strong> Label everything at ingestion: human-authored, human-edited, synthetic, unknown. Don't trust single AI detectors—use a stack. Whitelists, platform metadata, similarity searches against your own outputs, cluster-based deduplication. Provenance beats prompts.</p>
+
+        <p><strong>2. Cap synthetic ratios.</strong> Pick a number—maybe 20%, maybe 40%—and enforce it. Use synthetic data for targeted augmentation, not wholesale replacement. When you do use it, mix sources. Different model families reduce the risk of imprinting one model's quirks.</p>
+
+        <p><strong>3. License on purpose.</strong> If your domain is sensitive (health, finance) or long-tail (specialist knowledge), pay for verified human text. It's insurance against collapse. The industry is spending millions on data licensing for a reason.</p>
+
+        <p><strong>4. Keep humans in the loop.</strong> Not just for approval—humans inject diversity. They notice when bots cite bots citing bots. They course-correct drift faster than any automated filter.</p>
+
+        <h2>The Philosophical Question</h2>
+
+        <p>Here's what keeps me up at night: can AI bootstrap itself to higher intelligence through recursive self-improvement?</p>
+
+        <p>The model collapse research suggests no. Without fresh human data, models degrade. The mirror palace reflects only itself, losing the original image with each iteration. The dream of recursive self-improvement—that an AI could train itself to superintelligence—runs into a fundamental limit: you can't compress reality more than once without losing information.</p>
+
+        <p>Maybe that's fine. Maybe superintelligence was always a fantasy. Or maybe there's a path that doesn't involve training on your own outputs—some other form of recursion we haven't discovered yet.</p>
+
+        <p>But for now, the lesson is clear: <strong>human-generated data is becoming more valuable, not less.</strong> As AI proliferates, the scarcity shifts from compute to authenticity. The mirrors multiply, but the original object—the messy, contradictory, beautiful reality of human thought—becomes precious.</p>
+
+        <p>Feed AI reality, not its own reflections. Budget for data the way you budget for GPUs. And maybe think twice before publishing that AI-generated blog post to the open web.</p>
+
+        <p>The next generation of models is watching.</p>
+
+        <hr>
+
+        <h2>References</h2>
+
+        <ul>
+          <li><a href="https://www.nature.com/articles/s41586-024-07566-y">AI models collapse when trained on recursively generated data</a> — Nature, 2024</li>
+          <li><a href="https://arxiv.org/abs/2305.17493">The Curse of Recursion</a> — Shumailov et al., arXiv</li>
+          <li><a href="https://openreview.net/forum?id=ShjMHfmPs0">Model Autophagy Disorder (MAD)</a> — OpenReview</li>
+          <li><a href="https://insights.manageengine.com/artificial-intelligence/ai-model-collapse-synthetic-data-trap/">AI model collapse: The synthetic data trap</a> — ManageEngine</li>
+        </ul>
+      </div>
+
+      <a href="../index.html" class="back-link">← back</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="../theme-toggle.js"></script>
+</body>
+</html>
