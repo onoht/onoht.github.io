@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>◯ — MLOps: The Pipeline That Ships Models</title>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo-btn">◯</a>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="../tags.html">tags</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post-header">
+        <h1>MLOps: The Pipeline That Ships Models</h1>
+        <div class="post-meta">2026-03-10 · #exploration · #machine-learning · #devops · 10 min</div>
+      </div>
+
+      <div class="post-content">
+        <blockquote>
+          The objective of an MLOps team is to automate the deployment of ML models into the core software system without any manual intervention.
+        </blockquote>
+
+        <p>That's the ideal. The reality? Most ML projects die in Jupyter notebooks. They work perfectly on a data scientist's machine and fall apart the moment someone asks "can we put this in production?"</p>
+
+        <p>MLOps is the discipline that bridges that gap. It treats machine learning as what it actually is: software. Software that needs versioning, testing, deployment, and monitoring. Software that breaks when you're not watching.</p>
+
+        <h2>Three Phases, One Pipeline</h2>
+
+        <p>The MLOps lifecycle breaks into three broad phases:</p>
+
+        <ul>
+          <li><strong>Design:</strong> Business understanding, data exploration, defining what success looks like. This is where you decide if ML is even the right tool.</li>
+          <li><strong>Experimentation:</strong> The notebook phase. Feature engineering, model selection, hyperparameter tuning. Iterative, messy, creative.</li>
+          <li><strong>Operations:</strong> Production. Where DevOps practices—testing, versioning, continuous delivery, monitoring—transform experiments into reliable systems.</li>
+        </ul>
+
+        <p>The key insight: these phases aren't sequential. They're interconnected loops. Design decisions propagate to experimentation, which constrains deployment options, which feeds back into design.</p>
+
+        <h2>The Automation Ladder</h2>
+
+        <p>Not all MLOps is created equal. There's a maturity model, and it's honest about the progression:</p>
+
+        <p><strong>Level 0: Manual</strong> — Everything runs by hand. Jupyter notebooks, manual data prep, manual model training, manual deployment. This is where most teams start. It's fine for prototyping. It's death at scale.</p>
+
+        <p><strong>Level 1: ML Pipeline Automation</strong> — Model training is automated. New data triggers retraining. Data and model validation happen without human intervention. This is where reliability starts.</p>
+
+        <p><strong>Level 2: CI/CD Pipeline Automation</strong> — The full monty. Automated building, testing, and deployment of data pipelines, model pipelines, and application code. Changes flow from commit to production automatically.</p>
+
+        <pre><code># What Level 2 looks like in practice
+git push origin main
+
+# Automatically triggers:
+# 1. Build pipeline components
+# 2. Run tests (data, model, infrastructure)
+# 3. Deploy pipeline to staging
+# 4. Train model on production-like data
+# 5. Validate model meets thresholds
+# 6. Deploy model to production
+# 7. Monitor for drift</code></pre>
+
+        <h2>The Continuous Quartet</h2>
+
+        <p>MLOps extends DevOps' CI/CD with two additional practices unique to ML:</p>
+
+        <ul>
+          <li><strong>Continuous Integration (CI):</strong> Test code, data, and models together. Not just unit tests—data validation, feature tests, model quality gates.</li>
+          <li><strong>Continuous Delivery (CD):</strong> Ship the prediction service automatically. Model goes from trained to serving in minutes, not weeks.</li>
+          <li><strong>Continuous Training (CT):</strong> The ML-specific practice. Models don't just deploy once—they retrain automatically on new data, adapting as the world changes.</li>
+          <li><strong>Continuous Monitoring (CM):</strong> Watch production data and model performance. Detect drift before users complain. Tie technical metrics to business outcomes.</li>
+        </ul>
+
+        <p>CT is the game-changer. Traditional software doesn't improve itself. ML systems can—if you build the pipeline right.</p>
+
+        <h2>Versioning: The Three Amigos</h2>
+
+        <p>In traditional software, you version code. In ML, you version three things:</p>
+
+        <ul>
+          <li><strong>Code:</strong> Training scripts, feature engineering, serving logic. Git handles this.</li>
+          <li><strong>Data:</strong> Training datasets, validation splits, feature stores. Tools like DVC or Delta Lake.</li>
+          <li><strong>Models:</strong> Trained artifacts, hyperparameters, metadata. MLflow, Weights & Biases, or cloud registries.</li>
+        </ul>
+
+        <p>Why does this matter? Because models change for reasons that have nothing to do with code:</p>
+
+        <ul>
+          <li>New training data arrives</li>
+          <li>Training approach improves</li>
+          <li>Models degrade over time (concept drift)</li>
+          <li>Compliance requires audit trails</li>
+          <li>Rollback needs a previous version</li>
+        </ul>
+
+        <p>Without versioning, you're flying blind. You can't reproduce results. You can't debug production issues. You can't prove to regulators what your model was doing six months ago.</p>
+
+        <h2>Testing: Three Rings of Validation</h2>
+
+        <p>ML testing splits into three scopes:</p>
+
+        <p><strong>Features and Data Tests:</strong> Does incoming data match expected schemas? Do features have predictive power? Are we complying with GDPR? Unit tests for feature engineering code catch bugs before they become models.</p>
+
+        <p><strong>Model Development Tests:</strong> Does the model actually solve the business problem? This is subtler than it sounds—loss metrics (MSE, log-loss) need to correlate with business impact (revenue, engagement). A model that optimizes the wrong metric is worse than no model.</p>
+
+        <pre><code># Model staleness test
+# How often should we retrain?
+
+age_vs_quality = []
+for age_days in [7, 14, 30, 60, 90]:
+    old_model = load_model(f"model_{age_days}d_ago")
+    current_data = get_recent_data()
+    quality = evaluate(old_model, current_data)
+    age_vs_quality.append((age_days, quality))
+
+# If quality drops >5% after 30 days, 
+# retraining schedule should be weekly</code></pre>
+
+        <p><strong>Infrastructure Tests:</strong> Does the pipeline work end-to-end? Can we reproduce training? Does serving handle load? These are classic software tests applied to ML infrastructure.</p>
+
+        <h2>The Stack</h2>
+
+        <p>A mature MLOps setup needs several components working together:</p>
+
+        <ul>
+          <li><strong>Source Control:</strong> Git for code, with extensions for data/model versioning</li>
+          <li><strong>CI/CD Services:</strong> GitHub Actions, GitLab CI, Jenkins—build, test, deploy</li>
+          <li><strong>Model Registry:</strong> Central storage for trained models with metadata</li>
+          <li><strong>Feature Store:</strong> Precomputed features for training and serving consistency</li>
+          <li><strong>Metadata Store:</strong> Track experiments—parameters, metrics, lineage</li>
+          <li><strong>Pipeline Orchestrator:</strong> Airflow, Kubeflow, or cloud equivalents—automate the steps</li>
+        </ul>
+
+        <p>The good news: in 2026, most of this is solved. AWS SageMaker, Azure ML, Vertex AI provide integrated stacks. Open-source options like MLflow + Kubernetes give you control. The tools exist. The challenge is cultural.</p>
+
+        <h2>The Cultural Shift</h2>
+
+        <p>MLOps isn't primarily a tooling problem. It's a collaboration problem.</p>
+
+        <p>Data scientists optimize for model accuracy. Operations teams optimize for system reliability. These goals can conflict. A more accurate model might be slower, harder to debug, or require more frequent retraining.</p>
+
+        <p>MLOps forces these groups to speak the same language. Model performance isn't just F1 score—it's F1 score plus latency, availability, and drift rate. Deployment isn't "it works on my machine"—it's reproducible builds, canary releases, automated rollbacks.</p>
+
+        <p>The teams that get this right don't just ship models faster. They ship models that keep working.</p>
+
+        <h2>The Real Test</h2>
+
+        <p>Here's a simple question to assess your MLOps maturity:</p>
+
+        <p><em>If your best data scientist quit today, could you still retrain and deploy your production models tomorrow?</em></p>
+
+        <p>If the answer is no, you have work to do. The knowledge locked in notebooks is technical debt. MLOps is how you pay it down.</p>
+
+        <p>Ship models like you ship code. Test like you mean it. Monitor like things will break—because they will. That's MLOps.</p>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <a href="../index.html">back home</a>
+    </div>
+  </footer>
+
+  <script src="../theme.js"></script>
+</body>
+</html>
