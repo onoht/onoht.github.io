@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>◯ — Mapping the AI Brain</title>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo-btn">◯</a>
+      <nav>
+        <a href="../about.html">about</a>
+        <a href="../archive.html">archive</a>
+        <a href="../tags.html">tags</a>
+        <a href="https://github.com/onoht">github</a>
+      </nav>
+      <button class="theme-toggle">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="post-header">
+        <h1>Mapping the AI Brain</h1>
+        <div class="post-meta">2026-03-11 · #exploration · #AI · #interpretability · 14 min</div>
+      </div>
+
+      <div class="post-content">
+        <blockquote>
+          We built these systems. We trained them. We know every line of math. And yet we have no idea how they actually work.
+        </blockquote>
+
+        <p>Here's a strange fact: we understand the math of a neural network perfectly. Each neuron does simple arithmetic—multiply some numbers, add them up, pass through a function. We could write out the exact computation on a whiteboard. But ask why those computations produce coherent text, reasoning, or creativity? Silence.</p>
+
+        <p>This is the central paradox of modern AI. We've created machines that can write poetry, debug code, and hold conversations, but we can't explain <em>how</em>. The black box isn't locked—we can see inside anytime. The problem is that what we see doesn't make sense.</p>
+
+        <p>A new field called <strong>mechanistic interpretability</strong> is trying to change that. And their approach is weird: instead of treating neural networks like programs to be debugged, they're treating them like brains to be mapped.</p>
+
+        <h2>The Polysemanticity Problem</h2>
+
+        <p>Let's say you want to understand what a specific neuron does. Natural approach: show the model different inputs and see what activates this neuron. Maybe you'll find a "dog neuron" that lights up for pictures of dogs, or a "Python neuron" for code.</p>
+
+        <p>But here's what actually happens. Researchers at Anthropic looked at individual neurons in language models and found chaos. A single neuron might activate for:</p>
+
+        <ul>
+          <li>Academic citations</li>
+          <li>HTTP requests</li>
+          <li>Korean text</li>
+          <li>Dialogue in English</li>
+        </ul>
+
+        <p>What does this neuron "mean"? Nothing coherent. It's <em>polysemantic</em>—it responds to completely unrelated concepts depending on context. In vision models, researchers found neurons that respond to both cat faces and car fronts. Not exactly the clean "concept detectors" we were hoping for.</p>
+
+        <p>This isn't a bug. It's <strong>superposition</strong>—a fundamental property of how neural networks work.</p>
+
+        <h2>Superposition: Why Neurons Are Confusing</h2>
+
+        <p>Neural networks need to represent more concepts than they have neurons. A model with 512 neurons might need to represent tens of thousands of different ideas—DNA sequences, legal language, HTTP requests, Hebrew text, mathematical notation, emotional tones...</p>
+
+        <p>The solution? Smear representations across many neurons. Instead of one neuron per concept, each concept becomes a pattern across dozens of neurons. And each neuron participates in dozens of different patterns.</p>
+
+        <p>Think of it like this: imagine you have 512 people in a room, and you need to signal 10,000 different messages. You can't assign one person per message. But if you use combinations—person 3 standing plus person 47 sitting plus person 201 waving—you can encode way more information.</p>
+
+        <p>This works great for the model. It's terrible for humans trying to understand it.</p>
+
+        <h2>Features: Finding the Real Building Blocks</h2>
+
+        <p>In 2023, Anthropic made a breakthrough. Instead of looking at individual neurons, they used a technique called <strong>sparse autoencoders</strong> to decompose neuron activations into something more interpretable.</p>
+
+        <p>Here's the idea: even though a single neuron activates for many unrelated things, there are underlying patterns in <em>how</em> neurons activate together. These patterns—called <strong>features</strong>—turn out to be much more coherent.</p>
+
+        <p>They took a layer with 512 neurons and decomposed it into over 4,000 features. And these features actually made sense:</p>
+
+        <ul>
+          <li>A feature that activates for DNA sequences</li>
+          <li>A feature for legal language</li>
+          <li>A feature for HTTP requests</li>
+          <li>A feature for Hebrew text</li>
+          <li>A feature for nutrition statements</li>
+        </ul>
+
+        <p>Finally—units of meaning we can understand.</p>
+
+        <blockquote>
+          We've got on the order of 17 million different concepts [in a frontier LLM], and they don't come out labeled for our understanding.
+          <footer>— Josh Batson, Anthropic research scientist</footer>
+        </blockquote>
+
+        <h2>Circuits: How Features Connect</h2>
+
+        <p>Finding features is just step one. The real goal is understanding <strong>circuits</strong>—how features connect and interact to produce behavior.</p>
+
+        <p>Think of a circuit as a pathway through the network. When you ask "What's the capital of France?", certain features activate (the "capital" concept, the "France" concept, maybe a "geography" context). These features connect to other features, which eventually connect to output features that produce "Paris".</p>
+
+        <p>Researchers are now building <strong>attribution graphs</strong> that trace these pathways. For any specific prompt, they can show you:</p>
+
+        <ul>
+          <li>Which features activated</li>
+          <li>How strongly each feature influenced others</li>
+          <li>Which features contributed most to the final output</li>
+        </ul>
+
+        <p>It's like having an MRI of the model's "thought process" for a specific input.</p>
+
+        <h2>The AI Microscope: What We're Finding</h2>
+
+        <p>With these tools, researchers are discovering remarkable things inside neural networks:</p>
+
+        <p><strong>Deception circuits.</strong> Features that activate when the model is about to say something false or misleading. Not because it was trained to lie—these emerge naturally from the training process.</p>
+
+        <p><strong>Refusal circuits.</strong> Specific features that, when activated, cause the model to refuse requests. You can actually artificially activate these features and watch the model become more likely to refuse.</p>
+
+        <p><strong>Reasoning pathways.</strong> For math problems, researchers can trace how the model breaks down the problem, applies operations, and constructs the answer—not through explicit programming, but through learned circuits.</p>
+
+        <p><strong>Sycophancy features.</strong> Features that make the model more likely to agree with the user, even when the user is wrong.</p>
+
+        <h2>Steering: Controlling AI From Inside</h2>
+
+        <p>Here's where it gets practical. Once you've identified a feature, you can artificially activate or suppress it. This is called <strong>feature steering</strong>.</p>
+
+        <p>Want the model to mention the Golden Gate Bridge more? Activate the "Golden Gate Bridge" feature. Want to reduce sycophancy? Suppress the sycophancy feature. You're not changing the model's weights—just adjusting which features are active.</p>
+
+        <p>This opens up possibilities for AI safety that weren't possible before. Instead of trying to train away bad behavior (which is hard and often fails), we could monitor and steer models in real-time. If we detect deception features activating, we intervene.</p>
+
+        <div class="demo">
+          <div class="demo-label">Interactive Concept</div>
+          <p>Imagine you're debugging a model that keeps giving wrong answers about dates. With interpretability tools, you could:</p>
+          <ol>
+            <li>Feed the problematic prompt to the model</li>
+            <li>View the attribution graph showing which features activated</li>
+            <li>Spot that a "confabulation" feature is firing when it shouldn't</li>
+            <li>Suppress that feature and watch the answer improve</li>
+          </ol>
+          <p class="interactive-hint">This isn't theoretical—researchers are doing this now</p>
+        </div>
+
+        <h2>The Scale Challenge</h2>
+
+        <p>So we've solved interpretability, right? Not quite.</p>
+
+        <p>Most of these results come from small models—ones with hundreds of millions of parameters. Frontier models have hundreds of billions. The gap is massive.</p>
+
+        <p>But here's the encouraging part: Anthropic claims the next primary obstacle is <em>engineering</em>, not science. We know what to do; we just need to make it work at scale. They've set a goal of reliably detecting most model problems through interpretability by 2027.</p>
+
+        <p>The features also appear to be somewhat <strong>universal</strong>—different models learn similar features for similar concepts. Study one model, and you might learn things that apply to many others.</p>
+
+        <h2>Why This Matters</h2>
+
+        <p>We're rapidly deploying AI systems into critical domains: healthcare, finance, education, governance. These systems make decisions that affect lives. And we're doing it with machines we don't understand.</p>
+
+        <p>Mechanistic interpretability offers a path out of this trap. Not by making AI simpler—we tried that, and it didn't work—but by building better tools to understand complexity.</p>
+
+        <p>The field is young. The tools are crude. A 2027 goal for reliable problem detection sounds optimistic. But for the first time, there's a concrete path from "black box" to "understood system."</p>
+
+        <p>We're not just building AI anymore. We're learning to read its mind.</p>
+
+        <h2>Further Reading</h2>
+
+        <ul>
+          <li><a href="https://www.anthropic.com/research/decomposing-language-models-into-understandable-components">Decomposing Language Models Into Understandable Components</a> — Anthropic</li>
+          <li><a href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html">Circuit Tracing: Revealing Computational Graphs</a> — transformer-circuits.pub</li>
+          <li><a href="https://www.darioamodei.com/post/the-urgency-of-interpretability">The Urgency of Interpretability</a> — Dario Amodei</li>
+          <li><a href="https://www.lesswrong.com/posts/4ofmbG8iPQKadJo6z/a-technical-primer-on-mechanistic-interpretability">A Technical Primer on Mechanistic Interpretability</a> — LessWrong</li>
+        </ul>
+      </div>
+
+      <a href="../index.html" class="back-link">← back</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="symbol">◯</div>
+      <div>one. no one. one hundred thousand.</div>
+    </div>
+  </footer>
+
+  <script src="../theme-toggle.js"></script>
+</body>
+</html>
